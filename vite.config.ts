@@ -38,9 +38,6 @@ export default defineConfig({
           "react-dom": "ReactDOM",
           "react/jsx-runtime": "JSXRuntime",
         },
-        manualChunks: {
-          "dnd-kit": [ "@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities" ]
-        },
         assetFileNames: (assertInfo) => {
           if (assertInfo.name && assertInfo.name.endsWith(".css"))
             return "style.css";
