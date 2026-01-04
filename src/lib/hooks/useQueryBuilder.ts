@@ -1,6 +1,6 @@
-import { useState } from "react";
 import type { Query, Rule, RuleGroup } from "../types";
 import type { UseQueryBuilderReturn } from "../types/query-builder.types";
+import { addToQuery, duplicateInQuery, getRuleGroupInitialData, getRuleInitialData, removeFromQuery, toggleLockInQuery } from "../utils";
 
 interface UseQueryBuilderProps {
   value: Query;
@@ -9,27 +9,34 @@ interface UseQueryBuilderProps {
 }
 
 const useQueryBuilder = (props: UseQueryBuilderProps): UseQueryBuilderReturn => {
-  const { value, maxDepth } = props;
-  const [query] = useState<Query>(value);
+  const { value: query, maxDepth, onChange } = props;
 
   const addRule = (path: number[]) => {
-    console.log("addRule", path, maxDepth);
+    const updatedQuery = addToQuery(query, path, getRuleInitialData());
+    onChange(updatedQuery);
   };
 
   const addGroup = (path: number[]) => {
-    console.log("addGroup", path);
+    // prevention of adding group beyond max depth
+    if(Number.isFinite(maxDepth) && path.length >= (maxDepth! - 1)) return ;
+
+    const updatedQuery = addToQuery(query, path, getRuleGroupInitialData());
+    onChange(updatedQuery);
   };
 
   const remove = (path: number[]) => {
-    console.log("remove", path);
+    const updatedQuery = removeFromQuery(query, path);
+    onChange(updatedQuery);
   };
 
   const clone = (path: number[]) => {
-    console.log("clone", path);
+    const updatedQuery = duplicateInQuery(query, path);
+    onChange(updatedQuery);
   };
 
   const toggleLock = (path: number[]) => {
-    console.log("lock", path);
+    const updatedQuery = toggleLockInQuery(query, path);
+    onChange(updatedQuery);
   };
 
   const move = (fromPath: number[], toPath: number[]) => {

@@ -6,7 +6,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "happy-dom",
-    setupFiles: "./src/test/setup.ts",
+    setupFiles: "./src/tests/setup.ts",
     css: {
       modules: {
         classNameStrategy: "non-scoped",
@@ -17,7 +17,7 @@ export default defineConfig({
       reporter: ["text", "json", "html"],
       exclude: [
         "node_modules/",
-        "src/test/",
+        "src/tests/",
         "src/examples/",
         "**/*.test.ts",
         "**/*.test.tsx",

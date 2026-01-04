@@ -5,6 +5,7 @@ export {
   type FieldType,
   type Operator,
   type Field,
+  type Value,
   type Rule,
   type RuleGroup,
   type Query,

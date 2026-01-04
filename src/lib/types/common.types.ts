@@ -69,7 +69,7 @@ export type OperatorKey = keyof typeof operators;
 type ValueBinary = string | number | boolean | Date;
 type ValueRange = [number, number] | [string, string] | [Date, Date];
 type ValueList = string[] | number[] | boolean[] | Date[];
-type Value = ValueBinary | ValueRange | ValueList;
+export type Value = ValueBinary | ValueRange | ValueList;
 
 export type Combinator = "and" | "or";
 export type FieldType = "string" | "number" | "boolean" | "date";

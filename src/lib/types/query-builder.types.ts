@@ -51,8 +51,15 @@ export interface GroupRenderProps {
 
 export interface QueryBuilderProps {
   value: Query;
-  maxDepth?: number;
   children: React.ReactNode;
+  /**
+   * Maximum depth of nested groups.
+   * - undefined: unlimited nesting
+   * - 1: only root level (no nested groups)
+   * - 2: root + one level of nesting
+   * - 3: root + two levels of nesting
+   */
+  maxDepth?: number;
   onChange: (query: Query) => void;
 }
 

@@ -1,5 +1,20 @@
-import type { FieldType, Operator } from "../types/common.types";
+import type { FieldType, Operator, Rule, RuleGroup } from "../types/common.types";
 import { operators } from "../types/common.types";
+
+export const RULE_INITIAL_DATA: Rule = {
+  id: "rule-id",
+  field: "",
+  operator: "equal",
+  value: "",
+  isLocked: false,
+};
+
+export const RULE_GROUP_INITIAL_DATA: RuleGroup = {
+  id: "group-id",
+  combinator: "and",
+  rules: [],
+  isLocked: false,
+};
 
 export const OPERATORS_BY_FIELD_TYPE: Record<FieldType, Operator[]> = {
   string: [

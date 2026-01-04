@@ -1,6 +1,6 @@
 import type React from "react";
 import useQueryBuilderContext from "../hooks/useQueryBuilderContext";
-import type { BuilderProps, FieldType, Rule, RuleGroup } from "../types";
+import type { BuilderProps, Rule, RuleGroup } from "../types";
 import {
   getFieldMap,
   getOperatorForFieldType,
@@ -30,43 +30,51 @@ const Builder = (props: BuilderProps) => {
     path: number[] = []
   ): React.ReactNode => {
     if (isRuleGroup(query)) {
-      const rules: (Rule | RuleGroup)[] = (query as RuleGroup).rules;
+      const rules: (Rule | RuleGroup)[] = query.rules;
       const renderedRules = rules.map(
         (rule: Rule | RuleGroup, index: number) => (
-          <Fragment key={(rule as Rule | RuleGroup).id}>
+          <Fragment key={rule.id}>
             {renderNode(rule, [...path, index])}
           </Fragment>
         )
       );
-      return props.renderGroup({
-        children: renderedRules,
-        group: query as RuleGroup,
-        path,
-        depth: path.length,
-        slots: {
-          onAddGroup: () => addGroup(path),
-          onAddRule: () => addRule(path),
-          onRemove: () => remove(path),
-          onClone: () => clone(path),
-          onToggleLock: () => toggleLock(path),
-          addGroup: null,
-          addRule: null,
-          lock: null,
-          remove: null,
-          clone: null,
-        },
-        onChange: (updates: Partial<RuleGroup>) => updateGroup(path, updates),
-      });
+      return (
+        <Fragment key={query.id}>
+          {props.renderGroup({
+            children: renderedRules,
+            group: query,
+            path,
+            depth: path.length,
+            slots: {
+              onAddGroup: () => addGroup(path),
+              onAddRule: () => addRule(path),
+              onRemove: () => remove(path),
+              onClone: () => clone(path),
+              onToggleLock: () => toggleLock(path),
+              addGroup: null,
+              addRule: null,
+              lock: null,
+              remove: null,
+              clone: null,
+            },
+            onChange: (updates: Partial<RuleGroup>) =>
+              updateGroup(path, updates),
+          })}
+        </Fragment>
+      );
     }
+
+    const selectedField = getSelectedField(query, fieldMap);
+    const operators = selectedField
+      ? getOperatorForFieldType(selectedField.type, operatorsByFieldType)
+      : [];
+    const selectedOperator = getSelectedOperatorByKey(query.operator);
     return props.renderRule({
-      rule: query as Rule,
+      rule: query,
       path,
       depth: path.length,
       fields: fields,
-      operators: getOperatorForFieldType(
-        getSelectedField(query as Rule, fieldMap)?.type as FieldType,
-        operatorsByFieldType
-      ),
+      operators,
       slots: {
         onRemove: () => remove(path),
         onClone: () => clone(path),
@@ -75,8 +83,8 @@ const Builder = (props: BuilderProps) => {
         remove: null,
         clone: null,
       },
-      selectedField: getSelectedField(query as Rule, fieldMap),
-      selectedOperator: getSelectedOperatorByKey((query as Rule).operator),
+      selectedField,
+      selectedOperator,
       onChange: (updates: Partial<Rule>) => updateRule(path, updates),
     });
   };

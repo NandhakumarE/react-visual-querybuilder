@@ -7,7 +7,7 @@ import type {
 } from "../types/query-builder.types";
 import Builder from "./Builder";
 
-const QueryBuilder = (props: QueryBuilderProps) => {
+export const QueryBuilder = (props: QueryBuilderProps) => {
   const { value, onChange, children, maxDepth } = props;
   const queryBuilderUtils: UseQueryBuilderReturn = useQueryBuilder({
     value,
@@ -28,4 +28,3 @@ const QueryBuilder = (props: QueryBuilderProps) => {
 
 QueryBuilder.Builder = Builder;
 
-export default QueryBuilder;
