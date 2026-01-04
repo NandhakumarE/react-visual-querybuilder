@@ -1,73 +1,46 @@
-# React + TypeScript + Vite
+# React Visual Query Builder
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+  A headless, fully-typed React query builder with compound components, render props, and drag-and-drop support. Build complex filter UIs with any design system.
 
-Currently, two official plugins are available:
+  ## 🚧 Work in Progress
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+  This library is currently under active development. Features and API may change.
 
-## React Compiler
+  ## Features (Planned)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+  - **Headless & Unstyled** — Bring your own UI components
+  - **Compound Components** — Intuitive `<QueryBuilder.Builder>` API
+  - **Render Props** — Full control over rule and group rendering
+  - **Type-Safe** — 100% TypeScript with strict types
+  - **Immutable Updates** — Predictable state management
+  - **Drag & Drop** — Reorder rules and groups
+  - **Nested Groups** — Unlimited depth with `maxDepth` control
+  - **Slot-based Actions** — Customizable lock, clone, remove buttons
 
-## Expanding the ESLint configuration
+  ## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+  ```bash
+  npm install react-visual-querybuilder
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+  ⚠️ Not yet published to npm. Coming soon.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+  Basic Usage
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+  import { QueryBuilder } from 'react-visual-querybuilder';
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+  <QueryBuilder value={query} onChange={setQuery}>
+    <QueryBuilder.Builder
+      fields={fields}
+      renderRule={({ rule, fields, operators, onChange, slots }) => (
+        // Your custom rule UI
+      )}
+      renderGroup={({ group, children, slots }) => (
+        // Your custom group UI
+      )}
+    />
+  </QueryBuilder>
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+  License
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+  MIT
+  ```
