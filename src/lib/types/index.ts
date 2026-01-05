@@ -9,6 +9,8 @@ export {
   type Rule,
   type RuleGroup,
   type Query,
+  type RuleUpdate,
+  type RuleGroupUpdate
 } from "./common.types";
 
 // QueryBuilder component types

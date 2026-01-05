@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addToQuery, duplicateInQuery, removeFromQuery, toggleLockInQuery } from "./query.utils";
+import { addToQuery, duplicateInQuery, removeFromQuery, toggleLockInQuery, updateRuleGroupInQuery, updateRuleInQuery } from "./query.utils";
 import type { Query, Rule, RuleGroup } from "../types";
 
 const createQuery = (): Query => ({
@@ -311,15 +311,21 @@ describe("query utils", () => {
       const duplicate = updatedQuery.rules[2] as RuleGroup;
 
       // g1's nested r2
-      expect((duplicate.rules[0] as Rule).id).not.toBe((original.rules[0] as Rule).id);
+      expect((duplicate.rules[0] as Rule).id).not.toBe(
+        (original.rules[0] as Rule).id
+      );
 
       // g1's nested g2
-      expect((duplicate.rules[1] as RuleGroup).id).not.toBe((original.rules[1] as RuleGroup).id);
+      expect((duplicate.rules[1] as RuleGroup).id).not.toBe(
+        (original.rules[1] as RuleGroup).id
+      );
 
       // g2's nested r3
       const originalG2 = original.rules[1] as RuleGroup;
       const duplicateG2 = duplicate.rules[1] as RuleGroup;
-      expect((duplicateG2.rules[0] as Rule).id).not.toBe((originalG2.rules[0] as Rule).id);
+      expect((duplicateG2.rules[0] as Rule).id).not.toBe(
+        (originalG2.rules[0] as Rule).id
+      );
     });
 
     it("should insert duplicate immediately after original", () => {
@@ -388,7 +394,13 @@ describe("query utils", () => {
       const query: Query = {
         ...createQuery(),
         rules: [
-          { id: "r1", field: "name", operator: "equal", value: "John", isLocked: true },
+          {
+            id: "r1",
+            field: "name",
+            operator: "equal",
+            value: "John",
+            isLocked: true,
+          },
           createQuery().rules[1],
         ],
       };
@@ -428,8 +440,20 @@ describe("query utils", () => {
             combinator: "or",
             isLocked: true,
             rules: [
-              { id: "r2", field: "age", operator: "greater", value: 30, isLocked: true },
-              { id: "r3", field: "city", operator: "equal", value: "NYC", isLocked: true },
+              {
+                id: "r2",
+                field: "age",
+                operator: "greater",
+                value: 30,
+                isLocked: true,
+              },
+              {
+                id: "r3",
+                field: "city",
+                operator: "equal",
+                value: "NYC",
+                isLocked: true,
+              },
             ],
           },
         ],
@@ -480,7 +504,13 @@ describe("query utils", () => {
             combinator: "or",
             isLocked: true,
             rules: [
-              { id: "r1", field: "age", operator: "greater", value: 30, isLocked: true },
+              {
+                id: "r1",
+                field: "age",
+                operator: "greater",
+                value: 30,
+                isLocked: true,
+              },
             ],
           },
         ],
@@ -559,6 +589,222 @@ describe("query utils", () => {
 
       // undefined -> !undefined -> true
       expect((updatedQuery.rules[0] as Rule).isLocked).toBe(true);
+    });
+  });
+  describe("updateRuleInQuery", () => {
+    it("should update rule field at root level", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleInQuery(query, [0], { field: "email" });
+
+      expect((updatedQuery.rules[0] as Rule).field).toBe("email");
+    });
+
+    it("should update rule operator at root level", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleInQuery(query, [0], {
+        operator: "contains",
+      });
+
+      expect((updatedQuery.rules[0] as Rule).operator).toBe("contains");
+    });
+
+    it("should update rule value at root level", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleInQuery(query, [0], { value: "Jane" });
+
+      expect((updatedQuery.rules[0] as Rule).value).toBe("Jane");
+    });
+
+    it("should update multiple properties at once", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleInQuery(query, [0], {
+        field: "email",
+        operator: "contains",
+        value: "@gmail.com",
+      });
+
+      const rule = updatedQuery.rules[0] as Rule;
+      expect(rule.field).toBe("email");
+      expect(rule.operator).toBe("contains");
+      expect(rule.value).toBe("@gmail.com");
+    });
+
+    it("should update rule at nested level", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleInQuery(query, [1, 0], {
+        field: "salary",
+      });
+
+      const g1 = updatedQuery.rules[1] as RuleGroup;
+      expect((g1.rules[0] as Rule).field).toBe("salary");
+    });
+
+    it("should update rule at deeply nested level", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleInQuery(query, [1, 1, 0], { value: "LA" });
+
+      const g1 = updatedQuery.rules[1] as RuleGroup;
+      const g2 = g1.rules[1] as RuleGroup;
+      expect((g2.rules[0] as Rule).value).toBe("LA");
+    });
+
+    it("should update isLocked on rule", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleInQuery(query, [0], { isLocked: true });
+
+      expect((updatedQuery.rules[0] as Rule).isLocked).toBe(true);
+    });
+
+    it("should return unchanged if path points to a group", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleInQuery(query, [1], { field: "test" });
+
+      // g1 is a group, should not be updated
+      expect((updatedQuery.rules[1] as RuleGroup).combinator).toBe("or");
+    });
+
+    it("should return unchanged if empty value", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleInQuery(query, [0], {});
+
+      expect(updatedQuery).toBe(query);
+    });
+
+    it("should handle invalid path gracefully", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleInQuery(query, [99], { field: "test" });
+
+      expect(updatedQuery.rules.length).toBe(2);
+    });
+
+    it("should not mutate the original query", () => {
+      const query = createQuery();
+      updateRuleInQuery(query, [0], { value: "Jane" });
+
+      expect((query.rules[0] as Rule).value).toBe("John");
+    });
+
+    it("should return a new query reference", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleInQuery(query, [0], { value: "Jane" });
+
+      expect(updatedQuery).not.toBe(query);
+    });
+
+    it("should create new reference for modified path", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleInQuery(query, [1, 0], {
+        field: "salary",
+      });
+
+      expect(updatedQuery.rules[1]).not.toBe(query.rules[1]);
+    });
+
+    it("should keep same reference for unmodified siblings", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleInQuery(query, [1, 0], {
+        field: "salary",
+      });
+
+      expect(updatedQuery.rules[0]).toBe(query.rules[0]);
+    });
+  });
+  describe("updateRuleGroupInQuery", () => {
+    it("should update group combinator", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleGroupInQuery(query, [1], {
+        combinator: "and",
+      });
+
+      expect((updatedQuery.rules[1] as RuleGroup).combinator).toBe("and");
+    });
+
+    it("should update root group combinator with empty path", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleGroupInQuery(query, [], {
+        combinator: "or",
+      });
+
+      expect(updatedQuery.combinator).toBe("or");
+    });
+
+    it("should update isLocked on group", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleGroupInQuery(query, [1], {
+        isLocked: true,
+      });
+
+      expect((updatedQuery.rules[1] as RuleGroup).isLocked).toBe(true);
+    });
+
+    it("should update group at nested level", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleGroupInQuery(query, [1, 1], {
+        combinator: "or",
+      });
+
+      const g1 = updatedQuery.rules[1] as RuleGroup;
+      expect((g1.rules[1] as RuleGroup).combinator).toBe("or");
+    });
+
+    it("should return unchanged if path points to a rule", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleGroupInQuery(query, [0], {
+        combinator: "or",
+      });
+
+      // r1 is a rule, should not be updated, query structure unchanged
+      expect((updatedQuery.rules[0] as Rule).field).toBe("name");
+    });
+
+    it("should return unchanged if empty value", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleGroupInQuery(query, [1], {});
+
+      expect(updatedQuery).toBe(query);
+    });
+
+    it("should handle invalid path gracefully", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleGroupInQuery(query, [99], {
+        combinator: "or",
+      });
+
+      expect(updatedQuery.rules.length).toBe(2);
+    });
+
+    it("should not mutate the original query", () => {
+      const query = createQuery();
+      updateRuleGroupInQuery(query, [1], { combinator: "and" });
+
+      expect((query.rules[1] as RuleGroup).combinator).toBe("or");
+    });
+
+    it("should return a new query reference", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleGroupInQuery(query, [1], {
+        combinator: "and",
+      });
+
+      expect(updatedQuery).not.toBe(query);
+    });
+
+    it("should create new reference for modified path", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleGroupInQuery(query, [1, 1], {
+        combinator: "or",
+      });
+
+      expect(updatedQuery.rules[1]).not.toBe(query.rules[1]);
+    });
+
+    it("should keep same reference for unmodified siblings", () => {
+      const query = createQuery();
+      const updatedQuery = updateRuleGroupInQuery(query, [1], {
+        combinator: "and",
+      });
+
+      expect(updatedQuery.rules[0]).toBe(query.rules[0]);
     });
   });
 });

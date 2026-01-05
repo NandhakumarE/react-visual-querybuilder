@@ -96,4 +96,7 @@ export interface RuleGroup {
   isLocked?: boolean;
 }
 
+export type RuleUpdate = Partial<Omit<Rule, 'id'>>;
+export type RuleGroupUpdate = Partial<Omit<RuleGroup, 'id'|'rules'>>;
+
 export type Query = RuleGroup;

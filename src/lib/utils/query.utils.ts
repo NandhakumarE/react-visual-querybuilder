@@ -1,5 +1,5 @@
 import { RULE_GROUP_INITIAL_DATA, RULE_INITIAL_DATA } from "../constants";
-import type { Query, Rule, RuleGroup } from "../types";
+import type { Query, Rule, RuleGroup, RuleGroupUpdate, RuleUpdate } from "../types";
 
 type Item = Rule | RuleGroup;
 
@@ -149,4 +149,62 @@ export const toggleLockInQuery = (query: Item, path: number[]): Query => {
   };
 
   return lockUtil(query) as Query;
+};
+
+export const updateRuleInQuery = (
+  query: Item,
+  path: number[],
+  value: RuleUpdate
+): Query => {
+  if (!value || Object.keys(value).length === 0) return query as Query;
+
+  const updateUtil = (node: Item, depth: number = 0): Item => {
+    if (path.length === depth && !isRuleGroup(node)) {
+      return {
+        ...node,
+        ...value,
+      };
+    }
+
+    if (!isRuleGroup(node)) return node;
+
+    const pathIndex = path[depth];
+    return {
+      ...node,
+      rules: node.rules.map((rule, index) =>
+        pathIndex === index ? updateUtil(rule, depth + 1) : rule
+      ),
+    };
+  };
+
+  return updateUtil(query) as Query;
+};
+
+export const updateRuleGroupInQuery = (
+  query: Item,
+  path: number[],
+  value: RuleGroupUpdate
+): Query => {
+  if (!value || Object.keys(value).length === 0) return query as Query;
+
+  const updateUtil = (node: Item, depth: number = 0): Item => {
+    if (path.length === depth && isRuleGroup(node)) {
+      return {
+        ...node,
+        ...value,
+      };
+    }
+
+    if (!isRuleGroup(node)) return node;
+
+    const pathIndex = path[depth];
+    return {
+      ...node,
+      rules: node.rules.map((rule, index) =>
+        pathIndex === index ? updateUtil(rule, depth + 1) : rule
+      ),
+    };
+  };
+
+  return updateUtil(query) as Query;
 };
