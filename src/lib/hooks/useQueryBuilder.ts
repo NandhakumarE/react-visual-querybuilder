@@ -1,6 +1,6 @@
 import type { Query, Rule, RuleGroup } from "../types";
 import type { UseQueryBuilderReturn } from "../types/query-builder.types";
-import { addToQuery, duplicateInQuery, getRuleGroupInitialData, getRuleInitialData, removeFromQuery, toggleLockInQuery } from "../utils";
+import { addToQuery, duplicateInQuery, getRuleGroupInitialData, getRuleInitialData, moveHandler, removeFromQuery, toggleLockInQuery, updateRuleGroupInQuery, updateRuleInQuery } from "../utils";
 
 interface UseQueryBuilderProps {
   value: Query;
@@ -40,15 +40,18 @@ const useQueryBuilder = (props: UseQueryBuilderProps): UseQueryBuilderReturn => 
   };
 
   const move = (fromPath: number[], toPath: number[]) => {
-    console.log("dragHandle", fromPath, toPath);
+    const updatedQuery = moveHandler(query, fromPath, toPath);
+    onChange(updatedQuery);
   };
 
   const updateRule = (path: number[], updates: Partial<Rule>) => {
-    console.log("updateRule", path, updates);
+    const updatedQuery = updateRuleInQuery(query, path, updates);
+    onChange(updatedQuery);
   }
 
   const updateGroup = (path: number[], updates: Partial<RuleGroup>) => {
-    console.log("updateGroup", path, updates);
+    const updatedQuery = updateRuleGroupInQuery(query, path, updates);
+    onChange(updatedQuery);
   }
 
   return {

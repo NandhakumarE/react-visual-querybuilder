@@ -208,3 +208,111 @@ export const updateRuleGroupInQuery = (
 
   return updateUtil(query) as Query;
 };
+
+const getItemAtPath = (query: Query, path: number[]): Item | null => {
+  if (!query || Object.keys(query).length === 0 || path.length === 0)
+    return query;
+  let result: Item | null = null;
+
+  const getUtil = (node: Item, depth: number = 0): void => {
+    if (depth === path.length) {
+      result = { ...node };
+    }
+
+    if (!isRuleGroup(node)) return;
+
+    const pathIndex = path[depth];
+    node.rules.forEach((rule, index) =>
+      index === pathIndex ? getUtil(rule, depth + 1) : null
+    );
+  };
+  getUtil(query);
+
+  return result;
+};
+
+const getAdjustedDestPath = (
+  sourcePath: number[],
+  destPath: number[]
+): number[] => {
+  if (sourcePath.length === 0 || destPath.length === 0) return destPath;
+
+  const sourceParent = sourcePath.slice(0, -1);
+  const sourceIndex = sourcePath[sourcePath.length - 1];
+
+  // Check if dest path passes through the same parent level
+  if (destPath.length <= sourceParent.length) return destPath;
+
+  // Compare parent paths
+  const destParent = destPath.slice(0, sourceParent.length);
+  const isSameParent = sourceParent.every((v, i) => v === destParent[i]);
+
+  if (!isSameParent) return destPath;
+
+  const destIndexAtSourceLevel = destPath[sourceParent.length];
+
+  if (sourceIndex < destIndexAtSourceLevel) {
+    return [
+      ...destPath.slice(0, sourceParent.length),
+      destIndexAtSourceLevel - 1,
+      ...destPath.slice(sourceParent.length + 1),
+    ];
+  }
+
+  return destPath;
+};
+
+// Insert item at a specific position (not just append)
+// path = [2] means insert at index 2 in root
+// path = [1, 2] means insert at index 2 in the group at path [1]
+// path = [] means append to root (same as addToQuery)
+const insertAtQuery = (query: Item, path: number[], item: Item): Query => {
+  if (path.length === 0) {
+    return addToQuery(query, [], item);
+  }
+
+  const parentPath = path.slice(0, -1);
+  const insertIndex = path[path.length - 1];
+
+  const insertUtil = (node: Item, depth: number = 0): Item => {
+    if (!isRuleGroup(node)) return node;
+
+    if (depth === parentPath.length) {
+      return {
+        ...node,
+        rules: [
+          ...node.rules.slice(0, insertIndex),
+          item,
+          ...node.rules.slice(insertIndex),
+        ],
+      };
+    }
+
+    const pathIndex = parentPath[depth];
+    return {
+      ...node,
+      rules: node.rules.map((rule, index) =>
+        pathIndex === index ? insertUtil(rule, depth + 1) : rule
+      ),
+    };
+  };
+
+  return insertUtil(query) as Query;
+};
+
+export const moveHandler = (
+  query: Query,
+  sourcePath: number[],
+  destPath: number[]
+): Query => {
+  if (sourcePath.length === 0) return query;
+
+  const item = getItemAtPath(query, sourcePath);
+  if (!item) return query;
+
+  const afterRemoval = removeFromQuery(query, sourcePath);
+  const adjustedDest = getAdjustedDestPath(sourcePath, destPath);
+  const result = insertAtQuery(afterRemoval, adjustedDest, item);
+
+  return result;
+};

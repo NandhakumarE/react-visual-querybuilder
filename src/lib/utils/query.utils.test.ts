@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addToQuery, duplicateInQuery, removeFromQuery, toggleLockInQuery, updateRuleGroupInQuery, updateRuleInQuery } from "./query.utils";
+import { addToQuery, duplicateInQuery, moveHandler, removeFromQuery, toggleLockInQuery, updateRuleGroupInQuery, updateRuleInQuery } from "./query.utils";
 import type { Query, Rule, RuleGroup } from "../types";
 
 const createQuery = (): Query => ({
@@ -805,6 +805,396 @@ describe("query utils", () => {
       });
 
       expect(updatedQuery.rules[0]).toBe(query.rules[0]);
+    });
+  });
+  describe("moveHandler", () => {
+    // Helper to create a flat query for simpler move tests
+    const createFlatQuery = (): Query => ({
+      id: "root",
+      combinator: "and",
+      rules: [
+        { id: "r0", field: "name", operator: "equal", value: "A" },
+        { id: "r1", field: "age", operator: "greater", value: 10 },
+        { id: "r2", field: "city", operator: "equal", value: "B" },
+        { id: "r3", field: "country", operator: "equal", value: "C" },
+      ],
+    });
+
+    // Helper to create a nested query for complex move tests
+    const createNestedQuery = (): Query => ({
+      id: "root",
+      combinator: "and",
+      rules: [
+        { id: "r0", field: "name", operator: "equal", value: "John" },
+        { id: "r1", field: "email", operator: "contains", value: "@" },
+        {
+          id: "g1",
+          combinator: "or",
+          rules: [
+            { id: "r2", field: "age", operator: "greater", value: 18 },
+            { id: "r3", field: "status", operator: "equal", value: "active" },
+          ],
+        },
+        { id: "r4", field: "role", operator: "equal", value: "admin" },
+      ],
+    });
+
+    describe("basic moves at same level", () => {
+      it("should move rule forward at root level", () => {
+        const query = createFlatQuery();
+        // To move r0 to final position 2, use destPath [3]
+        // because adjustment: source 0 < dest 3, so dest becomes 2
+        // Original: [r0, r1, r2, r3]
+        // After removal: [r1, r2, r3]
+        // After insert at [2]: [r1, r2, r0, r3]
+        const updatedQuery = moveHandler(query, [0], [3]);
+
+        expect(updatedQuery.rules.length).toBe(4);
+        expect((updatedQuery.rules[0] as Rule).id).toBe("r1");
+        expect((updatedQuery.rules[1] as Rule).id).toBe("r2");
+        expect((updatedQuery.rules[2] as Rule).id).toBe("r0");
+        expect((updatedQuery.rules[3] as Rule).id).toBe("r3");
+      });
+
+      it("should move rule backward at root level", () => {
+        const query = createFlatQuery();
+        const updatedQuery = moveHandler(query, [3], [0]);
+
+        // r3 moved from index 3 to index 0
+        // Original: [r0, r1, r2, r3]
+        // After removal: [r0, r1, r2]
+        // After insert at [0]: [r3, r0, r1, r2]
+        expect(updatedQuery.rules.length).toBe(4);
+        expect((updatedQuery.rules[0] as Rule).id).toBe("r3");
+        expect((updatedQuery.rules[1] as Rule).id).toBe("r0");
+        expect((updatedQuery.rules[2] as Rule).id).toBe("r1");
+        expect((updatedQuery.rules[3] as Rule).id).toBe("r2");
+      });
+
+      it("should move rule within nested group", () => {
+        const query = createNestedQuery();
+        // Move r2 from [2,0] to position [2,1]
+        // Original g1: [r2, r3]
+        // After removal from [2,0]: [r3]
+        // Source [2,0] and dest [2,1] have same parent [2]
+        // source index 0 < dest index 1, so adjust: [2, 0]
+        // Insert at [2, 0]: [r2, r3] - same as before
+        // To actually swap, we need dest [2, 2] which adjusts to [2, 1]
+        const updatedQuery = moveHandler(query, [2, 0], [2, 2]);
+
+        const g1 = updatedQuery.rules[2] as RuleGroup;
+        expect(g1.rules.length).toBe(2);
+        expect((g1.rules[0] as Rule).id).toBe("r3");
+        expect((g1.rules[1] as Rule).id).toBe("r2");
+      });
+    });
+
+    describe("moves between different levels", () => {
+      it("should move rule from root into a group", () => {
+        const query = createNestedQuery();
+        // To move r0 INTO g1 (append), we use destPath = [2, 2]
+        // which means "insert at position 2 within the group at index 2"
+        // Original root: [r0, r1, g1, r4]
+        // After removal of [0]: [r1, g1, r4]
+        // g1 is now at index 1, adjust destPath [2, 2] -> [1, 2]
+        // Insert at [1, 2] within g1: g1 gets r0 at position 2
+        const updatedQuery = moveHandler(query, [0], [2, 2]);
+
+        expect(updatedQuery.rules.length).toBe(3);
+        expect((updatedQuery.rules[0] as Rule).id).toBe("r1");
+
+        const g1 = updatedQuery.rules[1] as RuleGroup;
+        expect(g1.rules.length).toBe(3);
+        expect((g1.rules[2] as Rule).id).toBe("r0");
+      });
+
+      it("should move rule from group to root", () => {
+        const query = createNestedQuery();
+        const updatedQuery = moveHandler(query, [2, 0], []);
+
+        // Move r2 from g1 to root
+        expect(updatedQuery.rules.length).toBe(5);
+        expect((updatedQuery.rules[4] as Rule).id).toBe("r2");
+
+        const g1 = updatedQuery.rules[2] as RuleGroup;
+        expect(g1.rules.length).toBe(1);
+        expect((g1.rules[0] as Rule).id).toBe("r3");
+      });
+
+      it("should move entire group to different position", () => {
+        const query = createNestedQuery();
+        const updatedQuery = moveHandler(query, [2], [0]);
+
+        // Move g1 from index 2 to index 0
+        // Original: [r0, r1, g1, r4]
+        // After removal: [r0, r1, r4]
+        // After insert at [0]: [g1, r0, r1, r4]
+        expect(updatedQuery.rules.length).toBe(4);
+        expect((updatedQuery.rules[0] as RuleGroup).id).toBe("g1");
+        expect((updatedQuery.rules[1] as Rule).id).toBe("r0");
+        expect((updatedQuery.rules[2] as Rule).id).toBe("r1");
+        expect((updatedQuery.rules[3] as Rule).id).toBe("r4");
+      });
+    });
+
+    describe("path adjustment (source before destination)", () => {
+      it("should adjust dest path when source is before dest at same level", () => {
+        const query = createFlatQuery();
+        // Move r0 (index 0) to position after r3 (dest [3])
+        // Without adjustment: remove [0] -> [r1, r2, r3], insert at [3] would be out of bounds
+        // With adjustment: dest becomes [2] -> [r1, r2, r3, r0] - but we want at end
+        const updatedQuery = moveHandler(query, [0], [3]);
+
+        // Source [0] < Dest [3], so dest should adjust to [2] after removal
+        // Result: [r1, r2, r0, r3]
+        expect(updatedQuery.rules.length).toBe(4);
+        expect((updatedQuery.rules[0] as Rule).id).toBe("r1");
+        expect((updatedQuery.rules[1] as Rule).id).toBe("r2");
+        expect((updatedQuery.rules[2] as Rule).id).toBe("r0");
+        expect((updatedQuery.rules[3] as Rule).id).toBe("r3");
+      });
+
+      it("should adjust nested dest path when source affects it", () => {
+        // sourcePath = [2], destPath = [6, 2]
+        // After removing index 2, index 6 becomes 5
+        // So destPath should become [5, 2]
+        const query: Query = {
+          id: "root",
+          combinator: "and",
+          rules: [
+            { id: "r0", field: "a", operator: "equal", value: "0" },
+            { id: "r1", field: "b", operator: "equal", value: "1" },
+            { id: "r2", field: "c", operator: "equal", value: "2" }, // source - will be moved
+            { id: "r3", field: "d", operator: "equal", value: "3" },
+            { id: "r4", field: "e", operator: "equal", value: "4" },
+            { id: "r5", field: "f", operator: "equal", value: "5" },
+            {
+              id: "g1",
+              combinator: "or",
+              rules: [
+                { id: "r6", field: "g", operator: "equal", value: "6" },
+                { id: "r7", field: "h", operator: "equal", value: "7" },
+                { id: "r8", field: "i", operator: "equal", value: "8" },
+              ],
+            },
+          ],
+        };
+
+        const updatedQuery = moveHandler(query, [2], [6, 2]);
+
+        // After removal of [2], g1 shifts from index 6 to 5
+        // With adjustment, r2 should be inserted into g1 (now at index 5) at position 2
+        expect(updatedQuery.rules.length).toBe(6); // One less at root
+
+        const g1 = updatedQuery.rules[5] as RuleGroup;
+        expect(g1.rules.length).toBe(4); // One more in group
+        expect((g1.rules[2] as Rule).id).toBe("r2"); // r2 inserted at position 2
+      });
+
+      it("should not adjust when source is after destination", () => {
+        const query = createFlatQuery();
+        // Move r3 (index 3) to position 1
+        // Source [3] > Dest [1], no adjustment needed
+        const updatedQuery = moveHandler(query, [3], [1]);
+
+        // Original: [r0, r1, r2, r3]
+        // After removal: [r0, r1, r2]
+        // After insert at [1]: [r0, r3, r1, r2]
+        expect(updatedQuery.rules.length).toBe(4);
+        expect((updatedQuery.rules[0] as Rule).id).toBe("r0");
+        expect((updatedQuery.rules[1] as Rule).id).toBe("r3");
+        expect((updatedQuery.rules[2] as Rule).id).toBe("r1");
+        expect((updatedQuery.rules[3] as Rule).id).toBe("r2");
+      });
+
+      it("should not adjust when paths have different parents", () => {
+        // sourcePath = [2, 0], destPath = [0]
+        // Removing from inside g1 doesn't affect root indices
+        const query = createNestedQuery();
+        const updatedQuery = moveHandler(query, [2, 0], [0]);
+
+        // r2 moved from g1 to root at position 0
+        // Original root: [r0, r1, g1, r4]
+        // After insert at [0]: [r2, r0, r1, g1, r4]
+        expect(updatedQuery.rules.length).toBe(5);
+        expect((updatedQuery.rules[0] as Rule).id).toBe("r2");
+
+        const g1 = updatedQuery.rules[3] as RuleGroup;
+        expect(g1.rules.length).toBe(1);
+      });
+
+      it("should adjust when moving within same nested parent", () => {
+        const query: Query = {
+          id: "root",
+          combinator: "and",
+          rules: [
+            {
+              id: "g1",
+              combinator: "or",
+              rules: [
+                { id: "r0", field: "a", operator: "equal", value: "0" },
+                { id: "r1", field: "b", operator: "equal", value: "1" },
+                { id: "r2", field: "c", operator: "equal", value: "2" },
+                { id: "r3", field: "d", operator: "equal", value: "3" },
+                { id: "r4", field: "e", operator: "equal", value: "4" },
+              ],
+            },
+          ],
+        };
+
+        // Move r1 from [0, 1] to [0, 4]
+        const updatedQuery = moveHandler(query, [0, 1], [0, 4]);
+
+        const g1 = updatedQuery.rules[0] as RuleGroup;
+        // After removal: [r0, r2, r3, r4]
+        // With adjustment [0, 4] -> [0, 3]
+        // After insert at [0, 3]: [r0, r2, r3, r1, r4]
+        expect(g1.rules.length).toBe(5);
+        expect((g1.rules[0] as Rule).id).toBe("r0");
+        expect((g1.rules[1] as Rule).id).toBe("r2");
+        expect((g1.rules[2] as Rule).id).toBe("r3");
+        expect((g1.rules[3] as Rule).id).toBe("r1");
+        expect((g1.rules[4] as Rule).id).toBe("r4");
+      });
+    });
+
+    describe("edge cases", () => {
+      it("should return unchanged query if source path is invalid", () => {
+        const query = createFlatQuery();
+        const updatedQuery = moveHandler(query, [99], [0]);
+
+        expect(updatedQuery.rules.length).toBe(4);
+        expect((updatedQuery.rules[0] as Rule).id).toBe("r0");
+      });
+
+      it("should return unchanged query if source path is empty", () => {
+        const query = createFlatQuery();
+        const updatedQuery = moveHandler(query, [], [0]);
+
+        // Moving root itself - should return the query
+        expect(updatedQuery.rules.length).toBe(4);
+      });
+
+      it("should handle moving to same position", () => {
+        const query = createFlatQuery();
+        const updatedQuery = moveHandler(query, [1], [1]);
+
+        // Move r1 to position 1 (same position)
+        // After removal: [r0, r2, r3]
+        // After insert at [1]: [r0, r1, r2, r3]
+        expect(updatedQuery.rules.length).toBe(4);
+        expect((updatedQuery.rules[0] as Rule).id).toBe("r0");
+        expect((updatedQuery.rules[1] as Rule).id).toBe("r1");
+      });
+
+      it("should handle moving to end of list", () => {
+        const query = createFlatQuery();
+        const updatedQuery = moveHandler(query, [0], []);
+
+        // Move r0 to end (empty path = append to root)
+        expect(updatedQuery.rules.length).toBe(4);
+        expect((updatedQuery.rules[3] as Rule).id).toBe("r0");
+      });
+
+      it("should handle empty query gracefully", () => {
+        const query: Query = {
+          id: "root",
+          combinator: "and",
+          rules: [],
+        };
+        const updatedQuery = moveHandler(query, [0], [1]);
+
+        expect(updatedQuery.rules.length).toBe(0);
+      });
+    });
+
+    describe("immutability", () => {
+      it("should not mutate the original query", () => {
+        const query = createFlatQuery();
+        const originalIds = query.rules.map((r) => (r as Rule).id);
+
+        moveHandler(query, [0], [2]);
+
+        const currentIds = query.rules.map((r) => (r as Rule).id);
+        expect(currentIds).toEqual(originalIds);
+      });
+
+      it("should return a new query reference", () => {
+        const query = createFlatQuery();
+        const updatedQuery = moveHandler(query, [0], [2]);
+
+        expect(updatedQuery).not.toBe(query);
+      });
+
+      it("should create new references for modified groups", () => {
+        const query = createNestedQuery();
+        const updatedQuery = moveHandler(query, [2, 0], [2, 1]);
+
+        expect(updatedQuery.rules[2]).not.toBe(query.rules[2]);
+      });
+
+      it("should keep same reference for unmodified items", () => {
+        const query = createNestedQuery();
+        // Move r0 from [0] to [2] (insert at position 2)
+        // Original: [r0, r1, g1, r4]
+        // After removal: [r1, g1, r4]
+        // Adjust dest [2] -> [1] (since source 0 < dest 2)
+        // Insert at [1]: [r1, r0, g1, r4]
+        const updatedQuery = moveHandler(query, [0], [2]);
+
+        // g1 and r4 should be same reference (not in the move path)
+        expect(updatedQuery.rules[2]).toBe(query.rules[2]); // g1 same ref
+        expect(updatedQuery.rules[3]).toBe(query.rules[3]); // r4 same ref
+      });
+    });
+
+    describe("moving groups with children", () => {
+      it("should move group with all its children intact", () => {
+        const query = createNestedQuery();
+        const updatedQuery = moveHandler(query, [2], [0]);
+
+        const movedGroup = updatedQuery.rules[0] as RuleGroup;
+        expect(movedGroup.id).toBe("g1");
+        expect(movedGroup.rules.length).toBe(2);
+        expect((movedGroup.rules[0] as Rule).id).toBe("r2");
+        expect((movedGroup.rules[1] as Rule).id).toBe("r3");
+      });
+
+      it("should preserve nested structure when moving deeply nested group", () => {
+        const query: Query = {
+          id: "root",
+          combinator: "and",
+          rules: [
+            { id: "r0", field: "a", operator: "equal", value: "0" },
+            {
+              id: "g1",
+              combinator: "or",
+              rules: [
+                {
+                  id: "g2",
+                  combinator: "and",
+                  rules: [
+                    { id: "r1", field: "b", operator: "equal", value: "1" },
+                  ],
+                },
+              ],
+            },
+          ],
+        };
+
+        const updatedQuery = moveHandler(query, [1, 0], []);
+
+        // g2 moved from inside g1 to root
+        expect(updatedQuery.rules.length).toBe(3);
+
+        const movedGroup = updatedQuery.rules[2] as RuleGroup;
+        expect(movedGroup.id).toBe("g2");
+        expect(movedGroup.rules.length).toBe(1);
+        expect((movedGroup.rules[0] as Rule).id).toBe("r1");
+
+        const g1 = updatedQuery.rules[1] as RuleGroup;
+        expect(g1.rules.length).toBe(0);
+      });
     });
   });
 });
