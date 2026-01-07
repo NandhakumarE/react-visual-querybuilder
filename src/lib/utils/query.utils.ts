@@ -25,6 +25,7 @@ export const addToQuery = (query: Item, path: number[], item: Item): Query => {
   const addUtil = (node: Item, item: Item, depth: number = 0): Item => {
     if (!isRuleGroup(node)) return node;
     if (path.length === depth) {
+       if(node.isLocked) return node;
       return {
         ...node,
         rules: [...node.rules, item],
@@ -36,7 +37,7 @@ export const addToQuery = (query: Item, path: number[], item: Item): Query => {
     return {
       ...node,
       rules: node.rules.map((rule, index) =>
-        pathIndex === index ? addUtil(rule, item, depth + 1) : rule
+        (pathIndex === index && !node.isLocked) ? addUtil(rule, item, depth + 1) : rule
       ),
     };
   };
@@ -49,6 +50,7 @@ export const removeFromQuery = (query: Item, path: number[]): Query => {
     if (!isRuleGroup(node)) return node;
 
     if (depth === path.length - 1) {
+      if(node.isLocked) return node;
       const indexToRemoved = path[depth];
       return {
         ...node,
@@ -61,7 +63,7 @@ export const removeFromQuery = (query: Item, path: number[]): Query => {
     return {
       ...node,
       rules: node.rules.map((rule, index) =>
-        pathIndex === index ? removeUtil(rule, depth + 1) : rule
+        (pathIndex === index && !node.isLocked) ? removeUtil(rule, depth + 1) : rule
       ),
     };
   };
@@ -89,7 +91,7 @@ export const duplicateInQuery = (query: Item, path: number[]): Query => {
     if (depth === path.length - 1) {
       const indexToBeCloned = path[depth];
       const original = node.rules[indexToBeCloned];
-      if(!original) return node;
+      if(!original || node.isLocked) return node;
 
       const duplicate = deepClone(original);
       return {
@@ -105,7 +107,7 @@ export const duplicateInQuery = (query: Item, path: number[]): Query => {
     return {
       ...node,
       rules: node.rules.map((rule, index) =>
-        pathIndex === index ? duplicateUtil(rule, depth + 1) : rule
+        (pathIndex === index && !node.isLocked) ? duplicateUtil(rule, depth + 1) : rule
       ),
     };
   };
@@ -160,6 +162,7 @@ export const updateRuleInQuery = (
 
   const updateUtil = (node: Item, depth: number = 0): Item => {
     if (path.length === depth && !isRuleGroup(node)) {
+      if(node.isLocked) return node;
       return {
         ...node,
         ...value,
@@ -172,7 +175,7 @@ export const updateRuleInQuery = (
     return {
       ...node,
       rules: node.rules.map((rule, index) =>
-        pathIndex === index ? updateUtil(rule, depth + 1) : rule
+        (pathIndex === index && !node.isLocked) ? updateUtil(rule, depth + 1) : rule
       ),
     };
   };
@@ -189,6 +192,7 @@ export const updateRuleGroupInQuery = (
 
   const updateUtil = (node: Item, depth: number = 0): Item => {
     if (path.length === depth && isRuleGroup(node)) {
+      if(node.isLocked) return node;
       return {
         ...node,
         ...value,
@@ -201,7 +205,7 @@ export const updateRuleGroupInQuery = (
     return {
       ...node,
       rules: node.rules.map((rule, index) =>
-        pathIndex === index ? updateUtil(rule, depth + 1) : rule
+        (pathIndex === index && !node.isLocked) ? updateUtil(rule, depth + 1) : rule
       ),
     };
   };
@@ -278,6 +282,7 @@ const insertAtQuery = (query: Item, path: number[], item: Item): Query => {
     if (!isRuleGroup(node)) return node;
 
     if (depth === parentPath.length) {
+      if(node.isLocked) return node;
       return {
         ...node,
         rules: [
@@ -292,12 +297,31 @@ const insertAtQuery = (query: Item, path: number[], item: Item): Query => {
     return {
       ...node,
       rules: node.rules.map((rule, index) =>
-        pathIndex === index ? insertUtil(rule, depth + 1) : rule
+        (pathIndex === index && !node.isLocked) ? insertUtil(rule, depth + 1) : rule
       ),
     };
   };
 
   return insertUtil(query) as Query;
+};
+
+const isPathLocked = (query: Query, path: number[]): boolean => {
+  if (path.length === 0) return !!query.isLocked;
+
+  let current: Item = query;
+  const parentPath = path.slice(0, -1);
+
+  if (current.isLocked) return true;
+
+  for (let i = 0; i < parentPath.length; i++) {
+    if (!isRuleGroup(current)) return false;
+    const next: Item | undefined = current.rules[parentPath[i]];
+    if (!next) return false;
+    if (next.isLocked) return true;
+    current = next;
+  }
+
+  return !!current.isLocked;
 };
 
 export const moveHandler = (
@@ -308,7 +332,12 @@ export const moveHandler = (
   if (sourcePath.length === 0) return query;
 
   const item = getItemAtPath(query, sourcePath);
-  if (!item) return query;
+  if (!item || item.isLocked) return query;
+
+  // Pre-check: is destination path locked?
+  if (destPath.length > 0 && isPathLocked(query, destPath)) {
+    return query;
+  }
 
   const afterRemoval = removeFromQuery(query, sourcePath);
   const adjustedDest = getAdjustedDestPath(sourcePath, destPath);

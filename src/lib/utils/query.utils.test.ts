@@ -1197,4 +1197,309 @@ describe("query utils", () => {
       });
     });
   });
+
+  describe("lock protection", () => {
+    // Helper to create a query with locked items
+    const createLockedQuery = (): Query => ({
+      id: "root",
+      combinator: "and",
+      rules: [
+        { id: "r1", field: "name", operator: "equal", value: "John" },
+        {
+          id: "g1",
+          combinator: "or",
+          isLocked: true,
+          rules: [
+            { id: "r2", field: "age", operator: "greater", value: 30, isLocked: true },
+            { id: "r3", field: "city", operator: "equal", value: "NYC", isLocked: true },
+          ],
+        },
+        { id: "r4", field: "email", operator: "contains", value: "@", isLocked: true },
+      ],
+    });
+
+    const newRule: Rule = {
+      id: "r99",
+      field: "test",
+      operator: "equal",
+      value: "test",
+    };
+
+    describe("addToQuery lock protection", () => {
+      it("should not add to a locked group (target level)", () => {
+        const query = createLockedQuery();
+        const updatedQuery = addToQuery(query, [1], newRule);
+
+        // g1 is locked, should not add
+        const g1 = updatedQuery.rules[1] as RuleGroup;
+        expect(g1.rules.length).toBe(2);
+      });
+
+      it("should not traverse through locked group to add", () => {
+        const query: Query = {
+          id: "root",
+          combinator: "and",
+          isLocked: true,
+          rules: [
+            {
+              id: "g1",
+              combinator: "or",
+              rules: [{ id: "r1", field: "a", operator: "equal", value: "1" }],
+            },
+          ],
+        };
+        const updatedQuery = addToQuery(query, [0], newRule);
+
+        // Root is locked, should not traverse to g1
+        const g1 = updatedQuery.rules[0] as RuleGroup;
+        expect(g1.rules.length).toBe(1);
+      });
+
+      it("should allow adding to unlocked group", () => {
+        const query = createLockedQuery();
+        const updatedQuery = addToQuery(query, [], newRule);
+
+        // Root is unlocked, should add
+        expect(updatedQuery.rules.length).toBe(4);
+      });
+    });
+
+    describe("removeFromQuery lock protection", () => {
+      it("should not remove from a locked parent (target level)", () => {
+        const query = createLockedQuery();
+        const updatedQuery = removeFromQuery(query, [1, 0]);
+
+        // g1 is locked, should not remove r2
+        const g1 = updatedQuery.rules[1] as RuleGroup;
+        expect(g1.rules.length).toBe(2);
+        expect((g1.rules[0] as Rule).id).toBe("r2");
+      });
+
+      it("should not traverse through locked group to remove", () => {
+        const query: Query = {
+          id: "root",
+          combinator: "and",
+          isLocked: true,
+          rules: [
+            {
+              id: "g1",
+              combinator: "or",
+              rules: [
+                { id: "r1", field: "a", operator: "equal", value: "1" },
+                { id: "r2", field: "b", operator: "equal", value: "2" },
+              ],
+            },
+          ],
+        };
+        const updatedQuery = removeFromQuery(query, [0, 0]);
+
+        // Root is locked, should not traverse
+        const g1 = updatedQuery.rules[0] as RuleGroup;
+        expect(g1.rules.length).toBe(2);
+      });
+
+      it("should allow removing from unlocked parent", () => {
+        const query = createLockedQuery();
+        const updatedQuery = removeFromQuery(query, [0]);
+
+        // Root is unlocked, should remove r1
+        expect(updatedQuery.rules.length).toBe(2);
+      });
+    });
+
+    describe("duplicateInQuery lock protection", () => {
+      it("should not duplicate in a locked parent (target level)", () => {
+        const query = createLockedQuery();
+        const updatedQuery = duplicateInQuery(query, [1, 0]);
+
+        // g1 is locked, should not duplicate r2
+        const g1 = updatedQuery.rules[1] as RuleGroup;
+        expect(g1.rules.length).toBe(2);
+      });
+
+      it("should not traverse through locked group to duplicate", () => {
+        const query: Query = {
+          id: "root",
+          combinator: "and",
+          isLocked: true,
+          rules: [
+            {
+              id: "g1",
+              combinator: "or",
+              rules: [{ id: "r1", field: "a", operator: "equal", value: "1" }],
+            },
+          ],
+        };
+        const updatedQuery = duplicateInQuery(query, [0, 0]);
+
+        // Root is locked, should not traverse
+        const g1 = updatedQuery.rules[0] as RuleGroup;
+        expect(g1.rules.length).toBe(1);
+      });
+
+      it("should allow duplicating in unlocked parent", () => {
+        const query = createLockedQuery();
+        const updatedQuery = duplicateInQuery(query, [0]);
+
+        // Root is unlocked, should duplicate r1
+        expect(updatedQuery.rules.length).toBe(4);
+        expect((updatedQuery.rules[1] as Rule).field).toBe("name");
+      });
+    });
+
+    describe("updateRuleInQuery lock protection", () => {
+      it("should not update a locked rule (target level)", () => {
+        const query = createLockedQuery();
+        const updatedQuery = updateRuleInQuery(query, [2], { value: "updated" });
+
+        // r4 is locked, should not update
+        expect((updatedQuery.rules[2] as Rule).value).toBe("@");
+      });
+
+      it("should not traverse through locked group to update rule", () => {
+        const query = createLockedQuery();
+        const updatedQuery = updateRuleInQuery(query, [1, 0], { value: 99 });
+
+        // g1 is locked, should not traverse to r2
+        const g1 = updatedQuery.rules[1] as RuleGroup;
+        expect((g1.rules[0] as Rule).value).toBe(30);
+      });
+
+      it("should allow updating unlocked rule", () => {
+        const query = createLockedQuery();
+        const updatedQuery = updateRuleInQuery(query, [0], { value: "Jane" });
+
+        // r1 is unlocked, should update
+        expect((updatedQuery.rules[0] as Rule).value).toBe("Jane");
+      });
+    });
+
+    describe("updateRuleGroupInQuery lock protection", () => {
+      it("should not update a locked group (target level)", () => {
+        const query = createLockedQuery();
+        const updatedQuery = updateRuleGroupInQuery(query, [1], { combinator: "and" });
+
+        // g1 is locked, should not update
+        expect((updatedQuery.rules[1] as RuleGroup).combinator).toBe("or");
+      });
+
+      it("should not traverse through locked group to update nested group", () => {
+        const query: Query = {
+          id: "root",
+          combinator: "and",
+          isLocked: true,
+          rules: [
+            {
+              id: "g1",
+              combinator: "or",
+              rules: [],
+            },
+          ],
+        };
+        const updatedQuery = updateRuleGroupInQuery(query, [0], { combinator: "and" });
+
+        // Root is locked, should not traverse
+        expect((updatedQuery.rules[0] as RuleGroup).combinator).toBe("or");
+      });
+
+      it("should allow updating unlocked group", () => {
+        const query = createLockedQuery();
+        const updatedQuery = updateRuleGroupInQuery(query, [], { combinator: "or" });
+
+        // Root is unlocked, should update
+        expect(updatedQuery.combinator).toBe("or");
+      });
+    });
+
+    describe("moveHandler lock protection", () => {
+      it("should not move a locked item", () => {
+        const query = createLockedQuery();
+        const updatedQuery = moveHandler(query, [2], [0]);
+
+        // r4 is locked, should not move
+        expect(updatedQuery.rules.length).toBe(3);
+        expect((updatedQuery.rules[2] as Rule).id).toBe("r4");
+      });
+
+      it("should not move a locked group", () => {
+        const query = createLockedQuery();
+        const updatedQuery = moveHandler(query, [1], [0]);
+
+        // g1 is locked, should not move
+        expect((updatedQuery.rules[1] as RuleGroup).id).toBe("g1");
+      });
+
+      it("should not move item from locked parent", () => {
+        const query = createLockedQuery();
+        // Try to move r2 from locked g1
+        const updatedQuery = moveHandler(query, [1, 0], []);
+
+        // g1 is locked, removeFromQuery should block
+        const g1 = updatedQuery.rules[1] as RuleGroup;
+        expect(g1.rules.length).toBe(2);
+      });
+
+      it("should not move item into locked group", () => {
+        const query = createLockedQuery();
+        // Try to move r1 into locked g1
+        const updatedQuery = moveHandler(query, [0], [1, 2]);
+
+        // g1 is locked, move should be blocked entirely
+        // Query should remain unchanged
+        expect(updatedQuery.rules.length).toBe(3);
+        expect((updatedQuery.rules[0] as Rule).id).toBe("r1");
+        const g1 = updatedQuery.rules[1] as RuleGroup;
+        expect(g1.rules.length).toBe(2);
+      });
+
+      it("should allow moving unlocked item between unlocked locations", () => {
+        const query: Query = {
+          id: "root",
+          combinator: "and",
+          rules: [
+            { id: "r1", field: "a", operator: "equal", value: "1" },
+            { id: "r2", field: "b", operator: "equal", value: "2" },
+            { id: "r3", field: "c", operator: "equal", value: "3" },
+          ],
+        };
+        const updatedQuery = moveHandler(query, [0], [3]);
+
+        // All unlocked, should move
+        expect(updatedQuery.rules.length).toBe(3);
+        expect((updatedQuery.rules[0] as Rule).id).toBe("r2");
+        expect((updatedQuery.rules[1] as Rule).id).toBe("r3");
+        expect((updatedQuery.rules[2] as Rule).id).toBe("r1");
+      });
+    });
+
+    describe("toggleLockInQuery with locked parent", () => {
+      it("should not toggle nested item if parent is locked", () => {
+        const query = createLockedQuery();
+        // Try to unlock r2 inside locked g1
+        const updatedQuery = toggleLockInQuery(query, [1, 0]);
+
+        // g1 is locked, should not allow toggling r2
+        const g1 = updatedQuery.rules[1] as RuleGroup;
+        expect((g1.rules[0] as Rule).isLocked).toBe(true);
+      });
+
+      it("should allow toggling item if parent is unlocked", () => {
+        const query = createLockedQuery();
+        // Toggle r4 (parent root is unlocked)
+        const updatedQuery = toggleLockInQuery(query, [2]);
+
+        expect((updatedQuery.rules[2] as Rule).isLocked).toBe(false);
+      });
+
+      it("should allow unlocking a locked group (cascade unlock children)", () => {
+        const query = createLockedQuery();
+        const updatedQuery = toggleLockInQuery(query, [1]);
+
+        const g1 = updatedQuery.rules[1] as RuleGroup;
+        expect(g1.isLocked).toBe(false);
+        expect((g1.rules[0] as Rule).isLocked).toBe(false);
+        expect((g1.rules[1] as Rule).isLocked).toBe(false);
+      });
+    });
+  });
 });
