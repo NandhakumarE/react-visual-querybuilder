@@ -85,3 +85,12 @@ export interface UseQueryBuilderReturn {
 export interface QueryBuilderContextType extends UseQueryBuilderReturn {
   maxDepth?: number;
 }
+
+export interface BaseComponentProps {
+  id: string;
+  children: React.ReactNode;
+}
+
+export interface BuilderContextType {
+  itemWrapper: React.ComponentType<BaseComponentProps> ;
+}

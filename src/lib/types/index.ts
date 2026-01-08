@@ -21,4 +21,6 @@ export {
   type BuilderProps,
   type UseQueryBuilderReturn,
   type QueryBuilderContextType,
+  type BuilderContextType,
+  type BaseComponentProps
 } from "./query-builder.types";

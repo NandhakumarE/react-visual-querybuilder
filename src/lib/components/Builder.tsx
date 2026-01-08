@@ -8,10 +8,14 @@ import {
   getSelectedOperatorByKey,
   isRuleGroup,
 } from "../utils";
-import { Fragment, useMemo } from "react";
+import { useMemo } from "react";
 import { OPERATORS_BY_FIELD_TYPE } from "../constants";
+import useBuilderContext from "../hooks/useBuilderContext";
+import DefaultWrapper from "./DefaultWrapper";
 
 const Builder = (props: BuilderProps) => {
+  const { itemWrapper: ItemWrapper = DefaultWrapper } =
+    useBuilderContext() || {};
   const { fields, operatorsByFieldType = OPERATORS_BY_FIELD_TYPE } = props;
   const {
     query,
@@ -33,34 +37,39 @@ const Builder = (props: BuilderProps) => {
       const rules: (Rule | RuleGroup)[] = query.rules;
       const renderedRules = rules.map(
         (rule: Rule | RuleGroup, index: number) => (
-          <Fragment key={rule.id}>
+          <ItemWrapper key={rule.id} id={rule.id}>
             {renderNode(rule, [...path, index])}
-          </Fragment>
+          </ItemWrapper>
         )
       );
-      return (
-        <Fragment key={query.id}>
-          {props.renderGroup({
-            children: renderedRules,
-            group: query,
-            path,
-            depth: path.length,
-            slots: {
-              onAddGroup: () => addGroup(path),
-              onAddRule: () => addRule(path),
-              onRemove: () => remove(path),
-              onClone: () => clone(path),
-              onToggleLock: () => toggleLock(path),
-              addGroup: null,
-              addRule: null,
-              lock: null,
-              remove: null,
-              clone: null,
-            },
-            onChange: (updates: Partial<RuleGroup>) =>
-              updateGroup(path, updates),
-          })}
-        </Fragment>
+
+      const groupContent = props.renderGroup({
+        children: renderedRules,
+        group: query,
+        path,
+        depth: path.length,
+        slots: {
+          onAddGroup: () => addGroup(path),
+          onAddRule: () => addRule(path),
+          onRemove: () => remove(path),
+          onClone: () => clone(path),
+          onToggleLock: () => toggleLock(path),
+          addGroup: null,
+          addRule: null,
+          lock: null,
+          remove: null,
+          clone: null,
+        },
+        onChange: (updates: Partial<RuleGroup>) => updateGroup(path, updates),
+      });
+
+      // Root group: no wrapper | Nested group: wrapped
+      return path.length === 0 ? (
+        groupContent
+      ) : (
+        <ItemWrapper key={query.id} id={query.id}>
+          {groupContent}
+        </ItemWrapper>
       );
     }
 
