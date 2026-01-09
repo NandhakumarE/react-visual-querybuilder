@@ -91,6 +91,12 @@ export interface BaseComponentProps {
   children: React.ReactNode;
 }
 
+export interface SortableContainerProps {
+  items: string[];
+  children: React.ReactNode;
+}
+
 export interface BuilderContextType {
-  itemWrapper: React.ComponentType<BaseComponentProps> ;
+  itemWrapper: React.ComponentType<BaseComponentProps>;
+  containerWrapper: React.ComponentType<SortableContainerProps>;
 }
