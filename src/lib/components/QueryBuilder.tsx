@@ -6,6 +6,7 @@ import type {
   UseQueryBuilderReturn,
 } from "../types/query-builder.types";
 import Builder from "./Builder";
+import { BuilderWithDnD } from "./BuilderWithDnD";
 
 export const QueryBuilder = (props: QueryBuilderProps) => {
   const { value, onChange, children, maxDepth } = props;
@@ -27,4 +28,4 @@ export const QueryBuilder = (props: QueryBuilderProps) => {
 };
 
 QueryBuilder.Builder = Builder;
-
+QueryBuilder.BuilderWithDnD = BuilderWithDnD;

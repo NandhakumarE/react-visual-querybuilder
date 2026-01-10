@@ -12,10 +12,13 @@ import { useMemo } from "react";
 import { OPERATORS_BY_FIELD_TYPE } from "../constants";
 import useBuilderContext from "../hooks/useBuilderContext";
 import DefaultWrapper from "./DefaultWrapper";
+import DefaultContainer from "./DefaultContainer";
 
 const Builder = (props: BuilderProps) => {
-  const { itemWrapper: ItemWrapper = DefaultWrapper } =
-    useBuilderContext() || {};
+  const {
+    itemWrapper: ItemWrapper = DefaultWrapper,
+    containerWrapper: ContainerWrapper = DefaultContainer,
+  } = useBuilderContext() || {};
   const { fields, operatorsByFieldType = OPERATORS_BY_FIELD_TYPE } = props;
   const {
     query,
@@ -35,12 +38,15 @@ const Builder = (props: BuilderProps) => {
   ): React.ReactNode => {
     if (isRuleGroup(query)) {
       const rules: (Rule | RuleGroup)[] = query.rules;
-      const renderedRules = rules.map(
-        (rule: Rule | RuleGroup, index: number) => (
-          <ItemWrapper key={rule.id} id={rule.id}>
-            {renderNode(rule, [...path, index])}
-          </ItemWrapper>
-        )
+      const itemIds = rules.map((rule) => rule.id);
+      const renderedRules = (
+        <ContainerWrapper items={itemIds}>
+          {rules.map((rule: Rule | RuleGroup, index: number) => (
+            <ItemWrapper key={rule.id} id={rule.id}>
+              {renderNode(rule, [...path, index])}
+            </ItemWrapper>
+          ))}
+        </ContainerWrapper>
       );
 
       const groupContent = props.renderGroup({
