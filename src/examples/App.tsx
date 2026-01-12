@@ -28,7 +28,7 @@ function App() {
         setQuery(newValue);
       }}
     >
-      <QueryBuilder.Builder
+      <QueryBuilder.BuilderWithDnD
         fields={[
           { label: "First Name", value: "firstName", type: "string" },
           { label: "Last Name", value: "lastName", type: "string" },

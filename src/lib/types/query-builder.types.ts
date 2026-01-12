@@ -112,8 +112,8 @@ export interface DroppableProps {
   disable?: boolean;
 }
 export interface BuilderContextType {
-  draggable: React.ComponentType<DraggableProps>;
-  droppable: React.ComponentType<DroppableProps>;
+  draggable: (props: DraggableProps) => React.ReactNode;
+  droppable: (props: DroppableProps) => React.ReactNode;
 }
 
 

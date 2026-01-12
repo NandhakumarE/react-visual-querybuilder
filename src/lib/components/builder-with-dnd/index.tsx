@@ -14,33 +14,12 @@ import Builder from "../builder";
 import BuilderContext from "../../context/BuilderContext";
 import { useState } from "react";
 import useQueryBuilderContext from "../../hooks/useQueryBuilderContext";
-import { findItemById, isRuleGroup } from "../../utils";
 import Draggable from "./Draggable";
 import Droppable from "./Droppable";
-
-
-const DefaultDragPreview = ({
-  item,
-  type,
-}: {
-  item: { id: string };
-  type: "rule" | "group";
-}) => (
-  <div
-    style={{
-      padding: "8px 12px",
-      background: type === "rule" ? "#e3f2fd" : "#f3e5f5",
-      border: `1px solid ${type === "rule" ? "#90caf9" : "#ce93d8"}`,
-      borderRadius: "4px",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-    }}
-  >
-    {type === "rule" ? "Rule" : "Group"}: {item.id.slice(0, 8)}...
-  </div>
-);
+import DefaultDragOverlay from "./DefaultDragOverlay";
 
 export const BuilderWithDnD = (props: BuilderProps) => {
-  const { query } = useQueryBuilderContext();
+  const { query, move } = useQueryBuilderContext();
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor)
@@ -53,23 +32,10 @@ export const BuilderWithDnD = (props: BuilderProps) => {
 
   const onDragEnd = (event: DragEndEvent) => {
     console.log("dragend", event);
+    const sourcePath = event.active?.data?.current?.path || [];
+    const destPath = event.over?.data?.current?.path || [];
+    if (sourcePath.length > 0 && destPath.length > 0) move(sourcePath, destPath);
     setActiveId(null);
-  };
-
-  const renderDragOverlay = () => {
-    if (!activeId) return null;
-
-    const result = findItemById(query, activeId);
-    if (!result) return null;
-
-    const { item } = result;
-    const type = isRuleGroup(item) ? "group" : "rule";
-
-    if (props.renderDragPreview) {
-      return props.renderDragPreview({ item, type });
-    }
-
-    return <DefaultDragPreview item={item} type={type} />;
   };
 
   return (
@@ -86,7 +52,17 @@ export const BuilderWithDnD = (props: BuilderProps) => {
         }}
       >
         <Builder {...props} />
-        <DragOverlay>{renderDragOverlay()}</DragOverlay>
+        <DragOverlay>
+          <DefaultDragOverlay
+            activeId={activeId}
+            query={query}
+            fields={props.fields}
+            operatorsByFieldType={props.operatorsByFieldType}
+            renderDragPreview={props.renderDragPreview}
+            renderGroup={props.renderGroup}
+            renderRule={props.renderRule}
+          />
+        </DragOverlay>
       </BuilderContext.Provider>
     </DndContext>
   );

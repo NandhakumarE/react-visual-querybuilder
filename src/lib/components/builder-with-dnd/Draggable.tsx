@@ -12,7 +12,7 @@ const Draggable = ({
   const { setNodeRef, attributes, listeners, transform, isDragging } =
     useDraggable({ id, data: { path }, disabled: disable });
 
-  if (disable) return children;
+  if (disable) return <>{children()}</>;
 
   const dragUtils: DragUtilsType = {
     attributes,
