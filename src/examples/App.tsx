@@ -43,17 +43,18 @@ function App() {
           selectedField,
         }) => (
           <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-            <span
+            <div
               style={{
                 border: "1px solid #ccc",
                 borderRadius: "4px",
                 padding: "0px 4px",
+                cursor:"grab"
               }}
               {...slots.dragHandles.attributes}
               {...slots.dragHandles.listeners}
             >
               ||
-            </span>
+            </div>
             <select
               value={rule.field || ""}
               onChange={(e) => onChange({ field: e.target.value })}
