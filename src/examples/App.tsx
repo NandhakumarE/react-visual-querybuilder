@@ -42,7 +42,17 @@ function App() {
           operators,
           selectedField,
         }) => (
-          <div style={{ marginLeft: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <div
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                padding: "0px 4px",
+              }}
+              {...slots.dragHandles}
+            >
+              ||
+            </div>
             <select
               value={rule.field || ""}
               onChange={(e) => onChange({ field: e.target.value })}
@@ -90,11 +100,26 @@ function App() {
             <button onClick={slots.onClone}>Clone</button>
           </div>
         )}
-        renderGroup={({ group, children, slots, onChange}) => (
-          <div
-            style={{ border: "1px solid black", padding: 8, marginLeft: 10 }}
-          >
-            <div>
+        renderGroup={({ group, children, slots, onChange }) => (
+          <div style={{ border: "1px solid black", padding: 8 }}>
+            <div
+              style={{
+                marginBottom: "4px",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              <span
+                style={{
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  padding: "0px 4px",
+                }}
+                {...slots.dragHandles}
+              >
+                ||
+              </span>
               <select
                 value={group.combinator}
                 onChange={(e) =>
@@ -109,7 +134,16 @@ function App() {
               <button onClick={slots.onRemove}>Remove Group</button>
               <button onClick={slots.onClone}>Clone</button>
             </div>
-            <div style={{ marginLeft: 20 }}>{children}</div>
+            <div
+              style={{
+                marginLeft: 20,
+                display: "flex",
+                flexDirection: "column",
+                gap: "4px",
+              }}
+            >
+              {children}
+            </div>
           </div>
         )}
       />

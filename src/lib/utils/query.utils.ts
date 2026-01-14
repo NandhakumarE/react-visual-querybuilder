@@ -1,5 +1,8 @@
-import { RULE_GROUP_INITIAL_DATA, RULE_INITIAL_DATA } from "../constants";
+import type { DraggableAttributes } from "@dnd-kit/core";
+import { DRAG_STATE, RULE_GROUP_INITIAL_DATA, RULE_INITIAL_DATA } from "../constants";
 import type { Query, Rule, RuleGroup, RuleGroupUpdate, RuleUpdate } from "../types";
+import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
+import type { DragHandleType } from "../types/query-builder.types";
 
 type Item = Rule | RuleGroup;
 
@@ -213,6 +216,28 @@ export const updateRuleGroupInQuery = (
   return updateUtil(query) as Query;
 };
 
+export const findItemById = (
+  query: Query,
+  id: string
+): { item: Item; path: number[] } | null => {
+  const findUtil = (node: Item, currentPath: number[]): { item: Item; path: number[] } | null => {
+    if (node.id === id) {
+      return { item: node, path: currentPath };
+    }
+
+    if (!isRuleGroup(node)) return null;
+
+    for (let i = 0; i < node.rules.length; i++) {
+      const result = findUtil(node.rules[i], [...currentPath, i]);
+      if (result) return result;
+    }
+
+    return null;
+  };
+
+  return findUtil(query, []);
+};
+
 const getItemAtPath = (query: Query, path: number[]): Item | null => {
   if (!query || Object.keys(query).length === 0 || path.length === 0)
     return query;
@@ -266,10 +291,6 @@ const getAdjustedDestPath = (
   return destPath;
 };
 
-// Insert item at a specific position (not just append)
-// path = [2] means insert at index 2 in root
-// path = [1, 2] means insert at index 2 in the group at path [1]
-// path = [] means append to root (same as addToQuery)
 const insertAtQuery = (query: Item, path: number[], item: Item): Query => {
   if (path.length === 0) {
     return addToQuery(query, [], item);
@@ -344,4 +365,43 @@ export const moveHandler = (
   const result = insertAtQuery(afterRemoval, adjustedDest, item);
 
   return result;
+};
+
+export const isInvalidDrop = (dragPath: number[], dropPath: number[]): boolean => {
+  // Case 1: Dropping into self or descendants
+  const isDescendent =
+    dropPath.length > dragPath.length &&
+    dragPath.every((path, index) => path === dropPath[index]);
+
+  if (isDescendent) return true;
+
+  // case 2: Same parent, dropping at same position or immediately after
+
+  const dragParent = dragPath.slice(0, -1);
+  const dropParent = dropPath.slice(0, -1);
+
+  const isSameParent = (dragParent.length === 0 && dropParent.length === 0) || (
+    dragParent.length === dropParent.length &&
+    dragParent.every((path, index) => path === dropParent[index]));
+
+  if (isSameParent) {
+    const dragIndex = dragPath[dragPath.length - 1];
+    const dropIndex = dropPath[dropPath.length - 1];
+
+    if (dropIndex === dragIndex || dropIndex === dragIndex + 1) return true;
+  }
+
+  return false;
+};
+
+export const getDragHandleUtil = (
+  attributes: DraggableAttributes | undefined,
+  listeners: SyntheticListenerMap | undefined,
+  isDragging: boolean
+): DragHandleType => {
+  return {
+    ...(attributes || {}),
+    ...(listeners || {}),
+    "data-drag-state": isDragging ? DRAG_STATE.dragging : DRAG_STATE.idle,
+  };
 };

@@ -5,8 +5,9 @@ import type {
   QueryBuilderContextType,
   UseQueryBuilderReturn,
 } from "../types/query-builder.types";
-import Builder from "./Builder";
-import { BuilderWithDnD } from "./BuilderWithDnD";
+import Builder from "./builder";
+import { BuilderWithDnD } from "./builder-with-dnd";
+import './styles.module.css';
 
 export const QueryBuilder = (props: QueryBuilderProps) => {
   const { value, onChange, children, maxDepth } = props;

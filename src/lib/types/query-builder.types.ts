@@ -1,3 +1,4 @@
+import type { DraggableAttributes } from "@dnd-kit/core";
 import type {
   Query,
   Field,
@@ -7,21 +8,23 @@ import type {
   RuleGroup,
 } from "./common.types";
 import type React from "react";
+import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 
 interface BaseSlots {
-  lock: React.ReactNode;
-  remove: React.ReactNode;
-  clone: React.ReactNode;
+  // lock: React.ReactNode;
+  // remove: React.ReactNode;
+  // clone: React.ReactNode;
 
   //Handle exposed separately
   onRemove: () => void;
   onClone: () => void;
   onToggleLock: () => void;
+  dragHandles: DragHandleType;
 }
 
 interface GroupSlots extends BaseSlots {
-  addGroup: React.ReactNode;
-  addRule: React.ReactNode;
+  // addGroup: React.ReactNode;
+  // addRule: React.ReactNode;
 
   //Handle exposed separately
   onAddGroup: () => void;
@@ -63,11 +66,17 @@ export interface QueryBuilderProps {
   onChange: (query: Query) => void;
 }
 
+export interface DragPreviewProps {
+  item: Rule | RuleGroup;
+  type: "rule" | "group";
+}
+
 export interface BuilderProps {
   fields: Field[];
   operatorsByFieldType?: Record<FieldType, Operator[]>;
   renderRule: (props: RuleRenderProps) => React.ReactNode;
   renderGroup: (props: GroupRenderProps) => React.ReactNode;
+  renderDragPreview?: (props: DragPreviewProps) => React.ReactNode;
 }
 
 export interface UseQueryBuilderReturn {
@@ -86,17 +95,27 @@ export interface QueryBuilderContextType extends UseQueryBuilderReturn {
   maxDepth?: number;
 }
 
-export interface BaseComponentProps {
+type DataAttributes = {
+  [K in `data-${string}`]?: string;
+};
+
+export type DragHandleType =  DraggableAttributes & SyntheticListenerMap | DataAttributes;
+
+export interface DraggableProps {
   id: string;
-  children: React.ReactNode;
+  path: number[];
+  children: (props?:{ dragUtils: DragHandleType }) => React.ReactNode;
+  isOverlay?: boolean;
+  disable?: boolean;
 }
-
-export interface SortableContainerProps {
-  items: string[];
-  children: React.ReactNode;
+export interface DroppableProps {
+  id: string;
+  path: number[];
+  disable?: boolean;
 }
-
 export interface BuilderContextType {
-  itemWrapper: React.ComponentType<BaseComponentProps>;
-  containerWrapper: React.ComponentType<SortableContainerProps>;
+  draggable: (props: DraggableProps) => React.ReactNode;
+  droppable: (props: DroppableProps) => React.ReactNode;
 }
+
+

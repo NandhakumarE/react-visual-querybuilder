@@ -19,9 +19,11 @@ export {
   type GroupRenderProps,
   type QueryBuilderProps,
   type BuilderProps,
+  type DragPreviewProps,
   type UseQueryBuilderReturn,
   type QueryBuilderContextType,
   type BuilderContextType,
-  type BaseComponentProps,
-  type SortableContainerProps
+  type DraggableProps,
+  type DroppableProps,
+  type DragUtilsType
 } from "./query-builder.types";
