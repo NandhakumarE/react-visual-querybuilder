@@ -1,6 +1,10 @@
 import type { FieldType, Operator, Rule, RuleGroup } from "../types/common.types";
 import { operators } from "../types/common.types";
 
+export const DRAG_STATE = {
+  idle: 'idle',
+  dragging: 'dragging'
+}
 export const RULE_INITIAL_DATA: Rule = {
   id: "rule-id",
   field: "",

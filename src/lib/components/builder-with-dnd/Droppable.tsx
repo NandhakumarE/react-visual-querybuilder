@@ -2,7 +2,7 @@ import { useDndContext, useDroppable } from "@dnd-kit/core";
 import type { DroppableProps } from "../../types";
 import { isInvalidDrop } from "../../utils";
 
-const Droppable = ({ id, path, disable }: DroppableProps) => {
+const Droppable = ({ id, path, disable = false }: DroppableProps) => {
   const { active } = useDndContext();
 
   const dragPath = active?.data?.current?.path || [];

@@ -1,6 +1,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import type { DraggableProps, DragUtilsType } from "../../types";
 import { CSS } from "@dnd-kit/utilities";
+import { getDragHandleUtil } from "../../utils";
 
 const Draggable = ({
   id,
@@ -14,10 +15,7 @@ const Draggable = ({
 
   if (disable) return <>{children()}</>;
 
-  const dragUtils: DragUtilsType = {
-    attributes,
-    listeners,
-  };
+  const dragUtils: DragUtilsType = getDragHandleUtil(attributes, listeners, isDragging)
 
   if (isDragging && !isOverlay) {
     return (

@@ -19,7 +19,7 @@ interface BaseSlots {
   onRemove: () => void;
   onClone: () => void;
   onToggleLock: () => void;
-  dragHandles: DragUtilsType;
+  dragHandles: DragHandleType;
 }
 
 interface GroupSlots extends BaseSlots {
@@ -95,14 +95,16 @@ export interface QueryBuilderContextType extends UseQueryBuilderReturn {
   maxDepth?: number;
 }
 
-export interface DragUtilsType {
-  attributes?: DraggableAttributes;
-  listeners?: SyntheticListenerMap | undefined;
-}
+type DataAttributes = {
+  [K in `data-${string}`]?: string;
+};
+
+export type DragHandleType =  DraggableAttributes & SyntheticListenerMap | DataAttributes;
+
 export interface DraggableProps {
   id: string;
   path: number[];
-  children: (props?:{ dragUtils: DragUtilsType }) => React.ReactNode;
+  children: (props?:{ dragUtils: DragHandleType }) => React.ReactNode;
   isOverlay?: boolean;
   disable?: boolean;
 }

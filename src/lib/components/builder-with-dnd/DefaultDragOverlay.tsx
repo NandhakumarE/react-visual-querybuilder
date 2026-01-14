@@ -18,6 +18,7 @@ import {
   getSelectedField,
   getOperatorForFieldType,
   getSelectedOperatorByKey,
+  getDragHandleUtil,
 } from "../../utils";
 import { OPERATORS_BY_FIELD_TYPE } from "../../constants";
 
@@ -31,10 +32,7 @@ interface DefaultDragOverlayProps {
   renderRule: (props: RuleRenderProps) => React.ReactNode;
 }
 
-const noOpDragHandles = {
-  attributes: undefined,
-  listeners: undefined,
-};
+const noOpDragHandles = getDragHandleUtil(undefined, undefined, true);
 
 const noOpSlots = {
   onRemove: () => {},

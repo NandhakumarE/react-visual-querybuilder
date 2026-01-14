@@ -48,10 +48,8 @@ function App() {
                 border: "1px solid #ccc",
                 borderRadius: "4px",
                 padding: "0px 4px",
-                cursor:"grab"
               }}
-              {...slots.dragHandles.attributes}
-              {...slots.dragHandles.listeners}
+              {...slots.dragHandles}
             >
               ||
             </div>
@@ -118,8 +116,7 @@ function App() {
                   borderRadius: "4px",
                   padding: "0px 4px",
                 }}
-                {...slots.dragHandles.attributes}
-                {...slots.dragHandles.listeners}
+                {...slots.dragHandles}
               >
                 ||
               </span>
