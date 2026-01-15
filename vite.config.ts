@@ -12,6 +12,7 @@ export default defineConfig({
       include: ["src/lib/**/*"],
       exclude: ["src/**/*.test.ts", "src/**/*.test.tsx", "src/examples/**/*"],
       rollupTypes: true,
+      tsconfigPath: resolve(__dirname, 'tsconfig.app.json')
     }),
   ],
   build: {
@@ -33,11 +34,6 @@ export default defineConfig({
         "react/jsx-runtime",
       ],
       output: {
-        globals: {
-          react: "React",
-          "react-dom": "ReactDOM",
-          "react/jsx-runtime": "JSXRuntime",
-        },
         assetFileNames: (assertInfo) => {
           if (assertInfo.name && assertInfo.name.endsWith(".css"))
             return "style.css";
@@ -46,7 +42,7 @@ export default defineConfig({
       },
     },
     cssCodeSplit: false,
-    sourcemap: true,
+    sourcemap: false,
     minify: "esbuild",
     target: "es2020",
   },

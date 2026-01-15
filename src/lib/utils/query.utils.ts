@@ -2,7 +2,7 @@ import type { DraggableAttributes } from "@dnd-kit/core";
 import { DRAG_STATE, RULE_GROUP_INITIAL_DATA, RULE_INITIAL_DATA } from "../constants";
 import type { Query, Rule, RuleGroup, RuleGroupUpdate, RuleUpdate } from "../types";
 import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
-import type { DragHandleType } from "../types/query-builder.types";
+import type { DragHandleType } from "../types";
 
 type Item = Rule | RuleGroup;
 
