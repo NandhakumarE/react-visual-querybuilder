@@ -1,7 +1,0 @@
-[data-drag-state = "idle"]{
-  cursor: grab;
-}
-
-[data-drag-state = "dragging"]{
-  cursor: grabbing;
-}

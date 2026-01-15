@@ -1,6 +1,6 @@
 import type React from "react";
 import useQueryBuilderContext from "../../hooks/useQueryBuilderContext";
-import type { BuilderProps, DragUtilsType, Rule, RuleGroup } from "../../types";
+import type { BuilderProps, DragHandleType, Rule, RuleGroup } from "../../types";
 import {
   getFieldMap,
   getOperatorForFieldType,
@@ -32,7 +32,7 @@ const Builder = (props: BuilderProps) => {
   const renderNode = (
     node: Rule | RuleGroup,
     path: number[] = [],
-    dragHandles: DragUtilsType = {}
+    dragHandles: DragHandleType = {}
   ): React.ReactNode => {
     if (isRuleGroup(node)) {
       const rules: (Rule | RuleGroup)[] = node.rules;

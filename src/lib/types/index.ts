@@ -4,6 +4,7 @@ export {
   type Combinator,
   type FieldType,
   type Operator,
+  type OperatorKey,
   type Field,
   type Value,
   type Rule,
@@ -25,5 +26,5 @@ export {
   type BuilderContextType,
   type DraggableProps,
   type DroppableProps,
-  type DragUtilsType
+  type DragHandleType
 } from "./query-builder.types";
