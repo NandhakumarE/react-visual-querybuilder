@@ -20,7 +20,7 @@ export default defineConfig({
       entry: {
         index: resolve(__dirname, "src/lib/index.ts"),
       },
-      name: "react-visual-querybuilder",
+      name: "react-querybuilder-lite",
       formats: ["es", "cjs"],
       fileName: (format: string, entryName: string) => {
         if (format === "es") return `${entryName}.js`;

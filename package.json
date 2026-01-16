@@ -1,19 +1,19 @@
 {
-  "name": "react-visual-querybuilder",
+  "name": "react-querybuilder-lite",
   "private": false,
   "version": "0.1.0",
   "type": "module",
-  "description": "A modern, flexible query builder for react with drag-and-drop, compound components and Typescript support. Build complex filters visually.",
+  "description": "A lightweight, headless React query builder with drag-and-drop and Typescript support. Build complex filters visually.",
   "author": "Nandhakumar Eswaran",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NandhakumarE/react-visual-querybuilder.git"
+    "url": "git+https://github.com/NandhakumarE/react-querybuilder-lite.git"
   },
   "bugs": {
-    "url": "https://github.com/NandhakumarE/react-visual-querybuilder/issues"
+    "url": "https://github.com/NandhakumarE/react-querybuilder-lite/issues"
   },
-  "homepage": "https://github.com/NandhakumarE/react-visual-querybuilder#readme",
+  "homepage": "https://github.com/NandhakumarE/react-querybuilder-lite#readme",
   "keywords": [
     "react",
     "query-builder",
