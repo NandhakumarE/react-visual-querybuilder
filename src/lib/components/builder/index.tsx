@@ -70,7 +70,7 @@ const Builder = (props: BuilderProps) => {
         children: renderedRules,
         group: node,
         path,
-        depth: path.length,
+        depth: path.length + 1,
         slots: {
           onAddGroup: () => addGroup(path),
           onAddRule: () => addRule(path),
