@@ -5,6 +5,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)
 ![React](https://img.shields.io/badge/React-18%20%7C%2019-61dafb)
 [![License](https://img.shields.io/npm/l/react-querybuilder-lite)](https://github.com/NandhakumarE/react-visual-querybuilder/blob/main/LICENSE)
+[![Storybook](https://img.shields.io/badge/Storybook-Live%20Demo-ff4785)](https://nandhakumare.github.io/react-querybuilder-lite/)
 
 A lightweight, headless React query builder with drag-and-drop support. Build complex filter UIs with any design system — zero styling opinions.
 
@@ -290,8 +291,9 @@ Operators are automatically filtered by field type:
 
 ## Live Demos
 
-<!-- TODO: Add Storybook link after deployment -->
-Coming soon — Storybook examples with various design systems.
+**[📚 View Storybook →](https://nandhakumare.github.io/react-querybuilder-lite/)**
+
+Interactive examples showcasing all components with different configurations.
 
 ## Design Decisions
 
