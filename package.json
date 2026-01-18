@@ -1,7 +1,7 @@
 {
   "name": "react-querybuilder-lite",
   "private": false,
-  "version": "0.2.0-beta.1",
+  "version": "0.3.0-beta.1",
   "type": "module",
   "description": "A lightweight, headless React query builder with drag-and-drop and Typescript support. Build complex filters visually.",
   "author": "Nandhakumar Eswaran",
