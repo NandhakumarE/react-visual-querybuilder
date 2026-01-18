@@ -79,6 +79,8 @@ const meta: Meta<typeof WithDragAndDropDemo> = {
   parameters: {
     layout: "padded",
     docs: {
+      // Render each story in iframe to isolate DnD contexts
+      story: { inline: false, height: "350px" },
       source: { code: null },
       description: {
         component: `
@@ -155,6 +157,7 @@ export const WithNestedGroups: Story = {
   args: { initialQuery: nestedQuery },
   parameters: {
     docs: {
+      story: { inline: false, height: "450px" },
       description: {
         story: "Drag rules between groups or reorder groups themselves.",
       },

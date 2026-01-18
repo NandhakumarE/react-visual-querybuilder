@@ -68,6 +68,7 @@ const meta: Meta<typeof MaxDepthDemo> = {
   parameters: {
     layout: "padded",
     docs: {
+      story: { inline: false, height: "350px" },
       source: { code: null },
       description: {
         component: `
