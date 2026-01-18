@@ -1,0 +1,185 @@
+# Release Workflow
+#
+# Your flow:
+#   develop → release (PR) → merge → publishes beta
+#   release → main (PR)    → merge → publishes stable (changeset required)
+#
+# Beta version: Reads changeset for bump type (patch/minor/major), defaults to patch
+#
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - release
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      # ─────────────────────────────────────────────────────────
+      # Check for changesets and determine bump type
+      # ─────────────────────────────────────────────────────────
+      - name: Check changesets and bump type
+        id: changesets
+        run: |
+          CHANGESET_FILE=$(find .changeset -name "*.md" ! -name "README.md" 2>/dev/null | head -1)
+
+          if [ -z "$CHANGESET_FILE" ]; then
+            echo "has_changesets=false" >> $GITHUB_OUTPUT
+            echo "bump_type=patch" >> $GITHUB_OUTPUT
+            echo "⚠️ No changesets found - defaulting to patch"
+          else
+            echo "has_changesets=true" >> $GITHUB_OUTPUT
+
+            # Read changeset to determine bump type (major > minor > patch)
+            if grep -q "major" "$CHANGESET_FILE"; then
+              echo "bump_type=major" >> $GITHUB_OUTPUT
+              echo "📦 Changeset indicates: major"
+            elif grep -q "minor" "$CHANGESET_FILE"; then
+              echo "bump_type=minor" >> $GITHUB_OUTPUT
+              echo "📦 Changeset indicates: minor"
+            else
+              echo "bump_type=patch" >> $GITHUB_OUTPUT
+              echo "📦 Changeset indicates: patch"
+            fi
+          fi
+
+      # ─────────────────────────────────────────────────────────
+      # RELEASE BRANCH → Publish Beta
+      # ─────────────────────────────────────────────────────────
+      - name: Get current version
+        if: github.ref == 'refs/heads/release'
+        id: current_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+
+      - name: Determine beta version
+        if: github.ref == 'refs/heads/release'
+        id: beta_version
+        run: |
+          CURRENT="${{ steps.current_version.outputs.version }}"
+          BUMP_TYPE="${{ steps.changesets.outputs.bump_type }}"
+
+          # Remove any existing prerelease suffix
+          BASE=$(echo $CURRENT | sed 's/-beta.*//' | sed 's/-alpha.*//' | sed 's/-rc.*//')
+          IFS='.' read -ra PARTS <<< "$BASE"
+
+          MAJOR=${PARTS[0]}
+          MINOR=${PARTS[1]}
+          PATCH=${PARTS[2]}
+
+          # Apply bump based on changeset type
+          case $BUMP_TYPE in
+            major)
+              NEW_MAJOR=$((MAJOR + 1))
+              NEW_VERSION="${NEW_MAJOR}.0.0-beta.1"
+              ;;
+            minor)
+              NEW_MINOR=$((MINOR + 1))
+              NEW_VERSION="${MAJOR}.${NEW_MINOR}.0-beta.1"
+              ;;
+            patch)
+              # Check if already a beta of same base version
+              if [[ "$CURRENT" == "${MAJOR}.${MINOR}.$((PATCH))-beta"* ]]; then
+                # Increment beta number
+                BETA_NUM=$(echo $CURRENT | sed 's/.*-beta\.//')
+                NEW_BETA=$((BETA_NUM + 1))
+                NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}-beta.${NEW_BETA}"
+              else
+                NEW_PATCH=$((PATCH + 1))
+                NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}-beta.1"
+              fi
+              ;;
+          esac
+
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Beta version: $NEW_VERSION (bump type: $BUMP_TYPE)"
+
+      - name: Update version for beta
+        if: github.ref == 'refs/heads/release'
+        run: npm version ${{ steps.beta_version.outputs.new_version }} --no-git-tag-version
+
+      - name: Publish beta to npm
+        if: github.ref == 'refs/heads/release'
+        run: npm publish --tag beta --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Commit beta version
+        if: github.ref == 'refs/heads/release'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "chore: release ${{ steps.beta_version.outputs.new_version }}"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ─────────────────────────────────────────────────────────
+      # MAIN BRANCH → Publish Stable (changeset REQUIRED)
+      # ─────────────────────────────────────────────────────────
+      - name: Version packages (stable)
+        if: github.ref == 'refs/heads/main' && steps.changesets.outputs.has_changesets == 'true'
+        run: npx changeset version
+
+      - name: Publish stable to npm
+        if: github.ref == 'refs/heads/main' && steps.changesets.outputs.has_changesets == 'true'
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Commit version + changelog
+        if: github.ref == 'refs/heads/main' && steps.changesets.outputs.has_changesets == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: release stable"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ─────────────────────────────────────────────────────────
+      # MAIN BRANCH + NO CHANGESETS → Skip
+      # ─────────────────────────────────────────────────────────
+      - name: Skip stable publish (no changesets)
+        if: github.ref == 'refs/heads/main' && steps.changesets.outputs.has_changesets == 'false'
+        run: |
+          echo "────────────────────────────────────────────────"
+          echo "ℹ️  No changesets found - skipping stable release"
+          echo ""
+          echo "To publish a stable version:"
+          echo "  1. Run: npx changeset"
+          echo "  2. Commit the .md file"
+          echo "  3. Merge to main"
+          echo "────────────────────────────────────────────────"
