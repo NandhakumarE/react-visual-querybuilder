@@ -16,9 +16,6 @@ dist-ssr
 .env.*.local
 *.local
 
-.changeset/*.md
-!.changeset/README.md
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
