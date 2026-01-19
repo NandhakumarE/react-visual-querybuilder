@@ -15,7 +15,20 @@ const config: StorybookConfig = {
   ],
   "framework": "@storybook/react-vite",
   viteFinal: (config) => {
-      config.plugins = [...(config.plugins || []), tailwindcss()];
+      // Filter out vite-plugin-dts (not needed for Storybook, causes build errors)
+      config.plugins = (config.plugins || []).filter((plugin) => {
+        const pluginName = plugin && typeof plugin === 'object' && 'name' in plugin ? plugin.name : '';
+        return pluginName !== 'vite:dts';
+      });
+
+      // Add tailwindcss
+      config.plugins.push(tailwindcss());
+
+      config.build = {
+        ...config.build,
+        chunkSizeWarningLimit: 1500,
+      };
+
       return config;
   },
 };
