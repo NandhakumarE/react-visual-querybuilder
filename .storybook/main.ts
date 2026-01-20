@@ -29,6 +29,11 @@ const config: StorybookConfig = {
         chunkSizeWarningLimit: 1500,
       };
 
+      // Set base path for GitHub Pages (when STORYBOOK_BASE env is set)
+      if (process.env.STORYBOOK_BASE) {
+        config.base = process.env.STORYBOOK_BASE;
+      }
+
       return config;
   },
 };
