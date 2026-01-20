@@ -22,17 +22,16 @@ const Group = (props: GroupRenderProps & { rootId: string; features?: GroupFeatu
   const isRoot = group.id === rootId;
   const isLocked = group.isLocked;
   const isMaxDepth = depth===maxDepth;
-  console.log(depth, maxDepth);
 
   return (
     <div
       className={cn(
-        "shadow-sm rounded-md pr-2 py-3 border border-gray-100",
+        styles.groupContainer,
         isLocked && styles.lockedContainer
       )}
       aria-disabled={isLocked}
     >
-      <div className="mb-1 flex items-center gap-3 py-1 pl-2">
+      <div className="mb-1 flex items-center gap-2 py-1 pl-2">
         {showDrag && !isRoot && (
           <div
             className={cn(
@@ -46,7 +45,7 @@ const Group = (props: GroupRenderProps & { rootId: string; features?: GroupFeatu
         )}
         <select
           id={group.id + "combinator"}
-          className={cn(styles.select, "font-semibold text-gray-600", styles.focusOutline)}
+          className={cn(styles.select, "font-semibold", styles.textLabel, styles.focusOutline)}
           value={group.combinator}
           onChange={(e) =>
             onChange({ combinator: e.target.value as "and" | "or" })

@@ -22,7 +22,8 @@ const Rule = (props: RuleRenderProps & { features?: RuleFeatures }) => {
   return (
     <div
       className={cn(
-        "flex items-center gap-1 border border-gray-300 rounded-md overflow-hidden",
+        "flex items-center gap-1 overflow-hidden",
+        styles.ruleContainer,
         isLocked && styles.lockedContainer
       )}
       aria-disabled={isLocked}
@@ -30,6 +31,7 @@ const Rule = (props: RuleRenderProps & { features?: RuleFeatures }) => {
       {showDrag && (
         <div
           className={cn(
+            "flex items-center px-1",
             isLocked ? styles.dragHandleDisabled : styles.dragHandle,
             styles.focusOutline
           )}
@@ -38,7 +40,7 @@ const Rule = (props: RuleRenderProps & { features?: RuleFeatures }) => {
           <MdOutlineDragIndicator size="18" />
         </div>
       )}
-      <div className={`${showDrag ? 'border-x': 'border-r'} border-gray-300 bg-gray-50 p-2 flex-1 flex gap-4`}>
+      <div className={showDrag ? styles.ruleCenterPanel : styles.ruleCenterPanelNoBorderLeft}>
         <select
           id={rule.id + "field"}
           className={cn(styles.input, styles.focusOutline)}
@@ -80,7 +82,7 @@ const Rule = (props: RuleRenderProps & { features?: RuleFeatures }) => {
           disabled={isLocked}
         />
       </div>
-      <div className="flex gap-4 px-2">
+      <div className="flex items-center gap-1 px-1">
         {showRemove && (
           <button
             className={cn(
