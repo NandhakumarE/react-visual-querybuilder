@@ -62,7 +62,7 @@ const ValueInput = ({
             onChange={(e) => handleFromChange(Number(e.target.value))}
             disabled={disabled}
           />
-          <span className="text-gray-500">to</span>
+          <span className={styles.textMuted}>to</span>
           <input
             id={ruleId + "value-to"}
             className={cn(styles.input, styles.focusOutline)}
@@ -87,7 +87,7 @@ const ValueInput = ({
             onChange={(e) => handleFromChange(e.target.value)}
             disabled={disabled}
           />
-          <span className="text-gray-500">to</span>
+          <span className={styles.textMuted}>to</span>
           <input
             id={ruleId + "value-to"}
             className={cn(styles.input, styles.focusOutline)}
@@ -112,7 +112,7 @@ const ValueInput = ({
           onChange={(e) => handleFromChange(e.target.value)}
           disabled={disabled}
         />
-        <span className="text-gray-500">to</span>
+        <span className={styles.textMuted}>to</span>
         <input
           id={ruleId + "value-to"}
           className={cn(styles.input, styles.focusOutline)}
