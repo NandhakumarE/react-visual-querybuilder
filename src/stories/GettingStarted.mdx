@@ -1,0 +1,211 @@
+# Getting Started
+
+Get up and running with react-querybuilder-lite in minutes.
+
+---
+
+## Installation
+
+```bash
+npm install react-querybuilder-lite
+```
+
+```bash
+yarn add react-querybuilder-lite
+```
+
+```bash
+pnpm add react-querybuilder-lite
+```
+
+<div style={{ padding: '12px 16px', background: '#eff6ff', borderLeft: '4px solid #3b82f6', borderRadius: '0 8px 8px 0', marginTop: '16px' }}>
+  <strong>📋 Peer Dependencies:</strong> React 18 or 19
+</div>
+
+---
+
+## Basic Setup
+
+### Step 1: Define Your Fields
+
+```tsx
+const fields = [
+  { label: 'First Name', value: 'firstName', type: 'string' },
+  { label: 'Last Name', value: 'lastName', type: 'string' },
+  { label: 'Age', value: 'age', type: 'number' },
+  { label: 'Is Active', value: 'isActive', type: 'boolean' },
+  { label: 'Created At', value: 'createdAt', type: 'date' },
+];
+```
+
+### Step 2: Initialize Query State
+
+```tsx
+import { useState } from 'react';
+import type { Query } from 'react-querybuilder-lite';
+
+const initialQuery: Query = {
+  id: 'root',
+  combinator: 'and',
+  rules: [],
+};
+
+function App() {
+  const [query, setQuery] = useState<Query>(initialQuery);
+  // ...
+}
+```
+
+### Step 3: Render the Builder
+
+```tsx
+import { QueryBuilder } from 'react-querybuilder-lite';
+
+<QueryBuilder value={query} onChange={setQuery}>
+  <QueryBuilder.Builder
+    fields={fields}
+    renderRule={(props) => <YourRuleComponent {...props} />}
+    renderGroup={(props) => <YourGroupComponent {...props} />}
+  />
+</QueryBuilder>
+```
+
+---
+
+## Render Props Reference
+
+### Rule Props
+
+The `renderRule` function receives these props:
+
+```tsx
+renderRule={({
+  rule,           // { id, field, operator, value, isLocked }
+  path,           // Position in tree [0, 1, 2]
+  depth,          // Nesting level (0 = root)
+  fields,         // Available fields array
+  operators,      // Operators for selected field type
+  selectedField,  // Currently selected field object
+  onChange,       // Update: onChange({ field: 'name' })
+  slots,          // { onRemove, onClone, onToggleLock, dragHandles }
+}) => (
+  // Your UI here
+)}
+```
+
+### Group Props
+
+The `renderGroup` function receives these props:
+
+```tsx
+renderGroup={({
+  group,          // { id, combinator, rules, isLocked }
+  path,           // Position in tree
+  depth,          // Nesting level
+  children,       // Pre-rendered child rules/groups
+  onChange,       // Update: onChange({ combinator: 'or' })
+  slots,          // { onAddRule, onAddGroup, onRemove, onClone, onToggleLock, dragHandles }
+}) => (
+  // Your UI here
+)}
+```
+
+---
+
+## Enable Drag and Drop
+
+Use `BuilderWithDnD` instead of `Builder`:
+
+```tsx
+<QueryBuilder value={query} onChange={setQuery}>
+  <QueryBuilder.BuilderWithDnD
+    fields={fields}
+    renderRule={({ slots, ...props }) => (
+      <div className="rule">
+        <span {...slots.dragHandles}>⠿</span>  {/* Drag handle */}
+        {/* Rest of your UI */}
+      </div>
+    )}
+    renderGroup={({ children, slots, ...props }) => (
+      <div className="group">
+        <span {...slots.dragHandles}>⠿</span>
+        {children}
+      </div>
+    )}
+  />
+</QueryBuilder>
+```
+
+<div style={{ padding: '12px 16px', background: '#fefce8', borderLeft: '4px solid #eab308', borderRadius: '0 8px 8px 0', marginTop: '16px' }}>
+  <strong>💡 Tip:</strong> Spread <code>slots.dragHandles</code> on any element to make it a drag handle.
+</div>
+
+---
+
+## Limit Nesting Depth
+
+Control how deep groups can nest:
+
+```tsx
+<QueryBuilder value={query} onChange={setQuery} maxDepth={2}>
+  {/* ... */}
+</QueryBuilder>
+```
+
+<div style={{ marginTop: '16px', fontSize: '14px', fontFamily: 'monospace', background: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+  <div style={{ marginBottom: '12px' }}>
+    <code style={{ background: '#dbeafe', padding: '2px 6px', borderRadius: '4px', color: '#1d4ed8' }}>maxDepth={1}</code>
+    <span style={{ color: '#6b7280', marginLeft: '8px' }}>→ Rules only, no groups</span>
+  </div>
+  <div style={{ marginBottom: '12px' }}>
+    <code style={{ background: '#dbeafe', padding: '2px 6px', borderRadius: '4px', color: '#1d4ed8' }}>maxDepth={2}</code>
+    <span style={{ color: '#6b7280', marginLeft: '8px' }}>→ Groups with rules (no nested groups)</span>
+  </div>
+  <div>
+    <code style={{ background: '#dbeafe', padding: '2px 6px', borderRadius: '4px', color: '#1d4ed8' }}>maxDepth={3}</code>
+    <span style={{ color: '#6b7280', marginLeft: '8px' }}>→ Groups inside groups (one level deep)</span>
+  </div>
+</div>
+
+---
+
+## Query Output
+
+The query state is a JSON structure you can use anywhere:
+
+```json
+{
+  "id": "root",
+  "combinator": "and",
+  "rules": [
+    { "id": "rule-1", "field": "firstName", "operator": "equal", "value": "John" },
+    {
+      "id": "group-1",
+      "combinator": "or",
+      "rules": [
+        { "id": "rule-2", "field": "age", "operator": "greater", "value": 18 },
+        { "id": "rule-3", "field": "isActive", "operator": "is_true" }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## Next Steps
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginTop: '16px' }}>
+  <a href="./index.html?path=/docs/core-basicbuilder--docs" target="_top" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', textDecoration: 'none', color: '#374151', background: '#fafafa' }}>
+    <span>🏗️</span> <span>Basic Builder Examples</span>
+  </a>
+  <a href="./index.html?path=/docs/core-withdraganddrop--docs" target="_top" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', textDecoration: 'none', color: '#374151', background: '#fafafa' }}>
+    <span>🖱️</span> <span>Drag and Drop</span>
+  </a>
+  <a href="./index.html?path=/docs/core-lockfeature--docs" target="_top" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', textDecoration: 'none', color: '#374151', background: '#fafafa' }}>
+    <span>🔒</span> <span>Lock Feature</span>
+  </a>
+  <a href="./index.html?path=/docs/core-operators--docs" target="_top" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', textDecoration: 'none', color: '#374151', background: '#fafafa' }}>
+    <span>⚙️</span> <span>Custom Operators</span>
+  </a>
+</div>
