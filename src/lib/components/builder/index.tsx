@@ -18,6 +18,7 @@ const Builder = (props: BuilderProps) => {
     useBuilderContext() || {};
   const { fields, operatorsByFieldType = OPERATORS_BY_FIELD_TYPE } = props;
   const {
+    maxDepth,
     query,
     addGroup,
     addRule,
@@ -46,6 +47,7 @@ const Builder = (props: BuilderProps) => {
                   id={`${node.id}-drop-${index + 1}`}
                   path={localPath}
                   disable={node.isLocked}
+                  maxDepth={maxDepth}
                 />
                 <Draggable
                   id={rule.id}
@@ -62,6 +64,7 @@ const Builder = (props: BuilderProps) => {
             id={`${node.id}-drop-#`}
             path={[...path, rules.length]}
             disable={node.isLocked}
+            maxDepth={maxDepth}
           />
         </>
       );

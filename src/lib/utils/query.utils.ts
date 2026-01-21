@@ -367,7 +367,11 @@ export const moveHandler = (
   return result;
 };
 
-export const isInvalidDrop = (dragPath: number[], dropPath: number[]): boolean => {
+export const isInvalidDrop = (dragPath: number[], dropPath: number[], maxDepth: number | undefined): boolean => {
+
+  // Prevent drops that would exceed the maximum nesting depth
+  if(maxDepth !== undefined && dropPath.length >= maxDepth) return true;
+
   // Case 1: Dropping into self or descendants
   const isDescendent =
     dropPath.length > dragPath.length &&
