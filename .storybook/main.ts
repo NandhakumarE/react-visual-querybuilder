@@ -11,12 +11,7 @@ const config: StorybookConfig = {
   "addons": [
     "@storybook/addon-vitest",
     "@storybook/addon-a11y",
-    {
-      name: "@storybook/addon-docs",
-      options: {
-        autodocs: false,
-      },
-    },
+    "@storybook/addon-docs",
   ],
   "framework": "@storybook/react-vite",
   viteFinal: (config) => {

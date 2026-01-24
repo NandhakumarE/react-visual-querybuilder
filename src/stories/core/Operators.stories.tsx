@@ -151,7 +151,7 @@ const meta: Meta<typeof OperatorsDemo> = {
   parameters: {
     layout: "padded",
     docs: {
-      story: { inline: false, height: "350px" },
+      story: { inline: false, height: "400px" },
       source: { code: null },
       description: {
         component: `
