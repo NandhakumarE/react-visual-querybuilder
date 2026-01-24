@@ -45,7 +45,7 @@ const MaxDepthDemo = ({ maxDepth = 2, initialQuery = nestedQuery }: MaxDepthDemo
   const [query, setQuery] = useState<Query>(initialQuery);
 
   return (
-    <div className="text-sm">
+    <div className="qb-container text-sm">
       <QueryBuilder
         value={query}
         maxDepth={maxDepth}

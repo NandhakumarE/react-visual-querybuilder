@@ -3,15 +3,20 @@ import tailwindcss from '@tailwindcss/vite';
 
 const config: StorybookConfig = {
   "stories": [
-    "../src/**/*.mdx",
-    "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
+    "../src/stories/**/*.mdx",
+    "../src/stories/**/*.stories.@(js|jsx|mjs|ts|tsx)"
   ],
+  // Disable auto-composition of external storybooks from dependencies
+  "refs": () => ({}),
   "addons": [
-    "@chromatic-com/storybook",
     "@storybook/addon-vitest",
     "@storybook/addon-a11y",
-    "@storybook/addon-docs",
-    "@storybook/addon-onboarding"
+    {
+      name: "@storybook/addon-docs",
+      options: {
+        autodocs: false,
+      },
+    },
   ],
   "framework": "@storybook/react-vite",
   viteFinal: (config) => {
