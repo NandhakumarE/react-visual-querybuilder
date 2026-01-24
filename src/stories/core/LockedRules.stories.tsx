@@ -109,7 +109,7 @@ const LockedDemo = ({ initialQuery }: { initialQuery: Query }) => {
   const [query, setQuery] = useState<Query>(initialQuery);
 
   return (
-    <div className="text-sm">
+    <div className="qb-container text-sm">
       <QueryBuilder value={query} onChange={(newValue) => setQuery(newValue)}>
         <QueryBuilder.BuilderWithDnD
           fields={fields}
@@ -128,7 +128,7 @@ const meta: Meta<typeof LockedDemo> = {
   parameters: {
     layout: "padded",
     docs: {
-      story: { inline: false, height: "350px" },
+      story: { inline: false, height: "400px" },
       source: { code: null },
       description: {
         component: `

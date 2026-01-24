@@ -43,7 +43,7 @@ const BasicBuilderDemo = ({ ruleFeatures, groupFeatures }: BasicBuilderDemoProps
   const defaultGroupFeatures: GroupFeatures = { showDrag: false, ...groupFeatures };
 
   return (
-    <div className="text-sm">
+    <div className="qb-container text-sm">
       <QueryBuilder value={query} onChange={(newValue) => setQuery(newValue)}>
         <QueryBuilder.Builder
           fields={fields}

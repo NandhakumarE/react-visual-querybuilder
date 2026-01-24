@@ -57,7 +57,7 @@ const WithDragAndDropDemo = ({ initialQuery = defaultQuery }: DemoProps) => {
   const [query, setQuery] = useState<Query>(initialQuery);
 
   return (
-    <div className="text-sm">
+    <div className="qb-container text-sm">
       <QueryBuilder
         value={query}
         onChange={(newValue) => setQuery(newValue)}
@@ -79,8 +79,7 @@ const meta: Meta<typeof WithDragAndDropDemo> = {
   parameters: {
     layout: "padded",
     docs: {
-      // Render each story in iframe to isolate DnD contexts
-      story: { inline: false, height: "350px" },
+      story: { inline: false, height: "400px" },
       source: { code: null },
       description: {
         component: `
@@ -157,7 +156,7 @@ export const WithNestedGroups: Story = {
   args: { initialQuery: nestedQuery },
   parameters: {
     docs: {
-      story: { inline: false, height: "450px" },
+      story: { inline: false, height: "500px" },
       description: {
         story: "Drag rules between groups or reorder groups themselves.",
       },
@@ -169,6 +168,7 @@ export const WithLockedItems: Story = {
   args: { initialQuery: lockedQuery },
   parameters: {
     docs: {
+      story: { inline: false, height: "400px" },
       description: {
         story: "Locked items (first rule) cannot be dragged. Notice the disabled drag handle.",
       },

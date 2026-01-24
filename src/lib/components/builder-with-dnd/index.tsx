@@ -21,7 +21,11 @@ import DefaultDragOverlay from "./DefaultDragOverlay";
 export const BuilderWithDnD = (props: BuilderProps) => {
   const { query, move } = useQueryBuilderContext();
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Require 8px movement before drag starts
+      },
+    }),
     useSensor(KeyboardSensor)
   );
   const [activeId, setActiveId] = useState<string | null>(null);
