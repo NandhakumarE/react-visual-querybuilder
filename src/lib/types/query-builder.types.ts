@@ -112,6 +112,7 @@ export interface DroppableProps {
   id: string;
   path: number[];
   disable?: boolean;
+  maxDepth?: number;
 }
 export interface BuilderContextType {
   draggable: (props: DraggableProps) => React.ReactNode;

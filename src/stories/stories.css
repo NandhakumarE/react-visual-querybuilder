@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+/* Use class-based dark mode instead of system preference */
+@custom-variant dark (&:is(.dark *));
+
+/* Core stories container */
+.qb-container {
+  max-width: 1000px;
+}

@@ -1,0 +1,438 @@
+/* Custom Style - Unique Design */
+.custom-qb-wrapper {
+  min-height: 100vh;
+  padding: 32px;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.custom-qb-wrapper.dark {
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+}
+
+.custom-qb-container {
+  max-width: 1000px;
+}
+
+/* Header */
+.custom-qb-header {
+  margin-bottom: 24px;
+}
+
+.custom-qb-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.dark .custom-qb-title {
+  color: #f8fafc;
+}
+
+.custom-qb-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.dark .custom-qb-subtitle {
+  color: #94a3b8;
+}
+
+/* Root Group Styles */
+.custom-root-group {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 6px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+}
+
+.dark .custom-root-group {
+  background: #1e293b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 6px 16px rgba(0, 0, 0, 0.2);
+  border-color: #334155;
+}
+
+.custom-root-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.dark .custom-root-header {
+  border-bottom-color: #334155;
+}
+
+/* Nested Group Styles - Vertical line instead of bracket */
+.custom-group {
+  position: relative;
+  margin-left: 8px;
+  padding: 16px;
+  padding-left: 24px;
+  margin-bottom: 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.dark .custom-group {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+/* Vertical line connector */
+.custom-group::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 20px;
+  bottom: 20px;
+  width: 3px;
+  background: linear-gradient(180deg, #3b82f6 0%, #6366f1 100%);
+  border-radius: 2px;
+}
+
+.dark .custom-group::before {
+  background: linear-gradient(180deg, #60a5fa 0%, #818cf8 100%);
+}
+
+/* Combinator badge - top right instead of on bracket */
+.custom-group-combinator-badge {
+  position: absolute;
+  right: 16px;
+  top: -10px;
+  z-index: 1;
+}
+
+.custom-combinator-label {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.dark .custom-combinator-label {
+  background: linear-gradient(135deg, #60a5fa 0%, #818cf8 100%);
+  color: #0f172a;
+}
+
+/* Rules container */
+.custom-rules-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Rule Styles */
+.custom-rule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.custom-rule:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.dark .custom-rule {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .custom-rule:hover {
+  border-color: #475569;
+}
+
+/* Delete button - circle with X */
+.custom-delete-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.custom-delete-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  transform: scale(1.05);
+}
+
+.custom-delete-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dark .custom-delete-btn {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #f87171;
+}
+
+.dark .custom-delete-btn:hover {
+  background: rgba(220, 38, 38, 0.2);
+}
+
+/* Select/Input Styles */
+.custom-select,
+.custom-input {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1e293b;
+  background: white;
+  transition: all 0.2s;
+  min-width: 130px;
+}
+
+.custom-select:focus,
+.custom-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.custom-select:disabled,
+.custom-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dark .custom-select,
+.dark .custom-input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+.dark .custom-select:focus,
+.dark .custom-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+}
+
+.custom-range-separator {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Group Footer - horizontal layout */
+.custom-group-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.dark .custom-group-footer {
+  border-top-color: #334155;
+}
+
+/* Add conditions button */
+.custom-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.custom-add-btn.primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.custom-add-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.dark .custom-add-btn.primary {
+  background: linear-gradient(135deg, #60a5fa 0%, #818cf8 100%);
+  color: #0f172a;
+}
+
+.custom-add-btn.secondary {
+  background: white;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.custom-add-btn.secondary:hover {
+  background: #fef2f2;
+}
+
+.dark .custom-add-btn.secondary {
+  background: transparent;
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #f87171;
+}
+
+.dark .custom-add-btn.secondary:hover {
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.custom-add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Combinator Toggle - pill style */
+.custom-combinator-toggle {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+.dark .custom-combinator-toggle {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+.custom-combinator-btn {
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 6px;
+}
+
+.custom-combinator-btn.active {
+  background: white;
+  color: #3b82f6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.custom-combinator-btn:not(.active):hover {
+  color: #3b82f6;
+}
+
+.dark .custom-combinator-btn {
+  color: #94a3b8;
+}
+
+.dark .custom-combinator-btn.active {
+  background: #334155;
+  color: #60a5fa;
+  box-shadow: none;
+}
+
+.dark .custom-combinator-btn:not(.active):hover {
+  color: #60a5fa;
+}
+
+.custom-combinator-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Add Group Button (at bottom) - outlined style */
+.custom-add-group-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  margin-top: 16px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.custom-add-group-btn:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.04);
+}
+
+.custom-add-group-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dark .custom-add-group-btn {
+  border-color: #475569;
+  color: #94a3b8;
+}
+
+.dark .custom-add-group-btn:hover {
+  border-color: #60a5fa;
+  color: #60a5fa;
+  background: rgba(96, 165, 250, 0.05);
+}
+
+/* Drag handle */
+.custom-drag-handle {
+  cursor: grab;
+  color: #cbd5e1;
+  padding: 2px;
+  opacity: 0.6;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.custom-drag-handle:hover {
+  opacity: 1;
+  color: #3b82f6;
+}
+
+.custom-drag-handle:active {
+  cursor: grabbing;
+}
+
+.dark .custom-drag-handle {
+  color: #475569;
+}
+
+.dark .custom-drag-handle:hover {
+  color: #60a5fa;
+}

@@ -1,0 +1,133 @@
+
+# react-querybuilder-lite
+
+<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
+  <img src="https://img.shields.io/npm/v/react-querybuilder-lite.svg" alt="npm version" />
+  <img src="https://img.shields.io/bundlephobia/minzip/react-querybuilder-lite" alt="bundle size" />
+  <img src="https://img.shields.io/badge/TypeScript-strict-blue" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/React-18%20%7C%2019-61dafb" alt="React" />
+  <img src="https://img.shields.io/npm/l/react-querybuilder-lite" alt="License" />
+</div>
+
+> A lightweight, headless React query builder with drag-and-drop support. Build complex filter UIs with any design system — zero styling opinions.
+
+---
+
+## Why Choose This Library?
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: '16px' }}>
+  <div style={{ padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#fafafa' }}>
+    <strong>🎨 Complete UI Freedom</strong>
+    <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#6b7280' }}>Use MUI, Chakra, Ant Design, Tailwind, or vanilla HTML. You control every pixel.</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#fafafa' }}>
+    <strong>🔄 Inversion of Control</strong>
+    <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#6b7280' }}>You own the markup, we handle the logic. Render props give you full control.</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#fafafa' }}>
+    <strong>📦 Lightweight</strong>
+    <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#6b7280' }}>~8KB without DnD, ~23KB with DnD (minified + gzipped). No bloat.</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#fafafa' }}>
+    <strong>🛡️ Type Safe</strong>
+    <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#6b7280' }}>Full TypeScript support with strict inference for queries, operators, and fields.</p>
+  </div>
+</div>
+
+---
+
+## Features
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginTop: '16px' }}>
+  <div style={{ padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', background: 'linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%)' }}>
+    <div style={{ fontSize: '32px', marginBottom: '12px' }}>🎯</div>
+    <strong style={{ fontSize: '16px' }}>Headless Architecture</strong>
+    <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>No built-in styles or markup. Bring your own components and design system.</p>
+  </div>
+  <div style={{ padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', background: 'linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%)' }}>
+    <div style={{ fontSize: '32px', marginBottom: '12px' }}>🧩</div>
+    <strong style={{ fontSize: '16px' }}>Compound Components</strong>
+    <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>Clean composition API with QueryBuilder.Builder pattern for intuitive usage.</p>
+  </div>
+  <div style={{ padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', background: 'linear-gradient(135deg, #fdf4ff 0%, #ffffff 100%)' }}>
+    <div style={{ fontSize: '32px', marginBottom: '12px' }}>🎮</div>
+    <strong style={{ fontSize: '16px' }}>Render Props</strong>
+    <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>Full control via renderRule and renderGroup with all data and actions exposed.</p>
+  </div>
+  <div style={{ padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', background: 'linear-gradient(135deg, #fffbeb 0%, #ffffff 100%)' }}>
+    <div style={{ fontSize: '32px', marginBottom: '12px' }}>🖱️</div>
+    <strong style={{ fontSize: '16px' }}>Drag & Drop</strong>
+    <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>Optional reordering powered by dnd-kit. Use BuilderWithDnD when needed.</p>
+  </div>
+  <div style={{ padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', background: 'linear-gradient(135deg, #fef2f2 0%, #ffffff 100%)' }}>
+    <div style={{ fontSize: '32px', marginBottom: '12px' }}>🔒</div>
+    <strong style={{ fontSize: '16px' }}>Lock Protection</strong>
+    <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>Prevent modification of specific rules or groups at the library level.</p>
+  </div>
+  <div style={{ padding: '20px', borderRadius: '12px', border: '1px solid #e5e7eb', background: 'linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%)' }}>
+    <div style={{ fontSize: '32px', marginBottom: '12px' }}>📊</div>
+    <strong style={{ fontSize: '16px' }}>Nested Groups</strong>
+    <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>Recursive AND/OR groups with maxDepth control for complex queries.</p>
+  </div>
+</div>
+
+---
+
+## Quick Start
+
+```bash
+npm install react-querybuilder-lite
+```
+
+```tsx
+import { QueryBuilder } from 'react-querybuilder-lite';
+
+<QueryBuilder value={query} onChange={setQuery}>
+  <QueryBuilder.Builder
+    fields={fields}
+    renderRule={(props) => <YourRule {...props} />}
+    renderGroup={(props) => <YourGroup {...props} />}
+  />
+</QueryBuilder>
+```
+
+---
+
+## Explore
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginTop: '16px' }}>
+  <a href="./index.html?path=/docs/getting-started--docs" target="_top" style={{ display: 'block', padding: '16px', borderRadius: '8px', border: '1px solid #3b82f6', textDecoration: 'none', color: '#3b82f6', fontWeight: '500' }}>
+    📚 Getting Started →
+  </a>
+  <a href="./index.html?path=/docs/core-basicbuilder--docs" target="_top" style={{ display: 'block', padding: '16px', borderRadius: '8px', border: '1px solid #10b981', textDecoration: 'none', color: '#10b981', fontWeight: '500' }}>
+    🏗️ Basic Builder →
+  </a>
+  <a href="./index.html?path=/docs/core-withdraganddrop--docs" target="_top" style={{ display: 'block', padding: '16px', borderRadius: '8px', border: '1px solid #8b5cf6', textDecoration: 'none', color: '#8b5cf6', fontWeight: '500' }}>
+    🖱️ Drag and Drop →
+  </a>
+  <a href="./index.html?path=/docs/core-lockfeature--docs" target="_top" style={{ display: 'block', padding: '16px', borderRadius: '8px', border: '1px solid #f59e0b', textDecoration: 'none', color: '#f59e0b', fontWeight: '500' }}>
+    🔒 Lock Feature →
+  </a>
+</div>
+
+---
+
+## Architecture
+
+```
+QueryBuilder              → State management wrapper
+  └── Builder             → Traverses query tree (or BuilderWithDnD)
+        └── renderGroup   → Your group UI (combinator, buttons)
+              └── renderRule   → Your rule UI (field, operator, value)
+              └── renderRule
+              └── renderGroup  → Nested groups supported
+                    └── renderRule
+```
+
+**Data flows down, actions flow up** — You get pre-wired `slots` for all actions (add, remove, clone, lock, drag).
+
+---
+
+<div style={{ textAlign: 'center', padding: '24px', color: '#6b7280', fontSize: '14px' }}>
+  MIT License • Made with ❤️ for the React community
+</div>
