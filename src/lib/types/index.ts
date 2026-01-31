@@ -2,8 +2,10 @@
 export {
   operators,
   type Combinator,
+  type DefaultFieldType,
   type FieldType,
   type Operator,
+  type OperatorType,
   type OperatorKey,
   type Field,
   type Value,
@@ -26,5 +28,9 @@ export {
   type BuilderContextType,
   type DraggableProps,
   type DroppableProps,
-  type DragHandleType
+  type DragHandleType,
+  type DragDropAccessibility
 } from "./query-builder.types";
+
+// Re-export @dnd-kit accessibility types for i18n customization
+export type { Announcements, ScreenReaderInstructions } from "@dnd-kit/core";

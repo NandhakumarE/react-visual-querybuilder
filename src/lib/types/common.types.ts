@@ -5,6 +5,9 @@ const operatorTypes = {
   LIST: "list",
 } as const;
 
+/** Operator type category */
+export type OperatorType = (typeof operatorTypes)[keyof typeof operatorTypes];
+
 export const operators = {
   // unary operators
   is_empty: { name: "Is Empty", value: "is_empty", type: operatorTypes.UNARY },
@@ -72,8 +75,27 @@ type ValueList = string[] | number[] | boolean[] | Date[];
 export type Value = ValueBinary | ValueRange | ValueList;
 
 export type Combinator = "and" | "or";
-export type FieldType = "string" | "number" | "boolean" | "date";
-export type Operator = (typeof operators)[OperatorKey];
+/** Default field types provided by the library */
+export type DefaultFieldType = "string" | "number" | "boolean" | "date";
+/**
+ * Field type - can be any string.
+ * Default types: "string", "number", "boolean", "date"
+ * Custom types: "datetime", "currency", "email", etc.
+ */
+export type FieldType = string;
+
+/**
+ * Operator definition.
+ * You can use the built-in operators or create custom ones with any name.
+ */
+export interface Operator {
+  /** Display name (can be any string, supports i18n) */
+  name: string;
+  /** Unique identifier for the operator */
+  value: string;
+  /** Operator category: "unary", "binary", "range", or "list" */
+  type: OperatorType;
+}
 
 export interface Field {
   label: string;

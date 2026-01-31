@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { QueryBuilder } from "../../lib/components/QueryBuilder";
-import { operators, type Query } from "../../lib/types";
+import { operators, type Query, type Operator } from "../../lib/types";
 import "../stories.css";
 import Rule from "./components/Rule";
 import Group from "./components/Group";
@@ -67,6 +67,45 @@ const dateFields = [
   { label: "Updated At", value: "updatedAt", type: "date" as const },
   { label: "Birth Date", value: "birthDate", type: "date" as const },
 ];
+
+// Custom field types example
+const customQuery: Query = {
+  id: "root",
+  combinator: "and",
+  rules: [
+    { id: "rule-1", field: "email", operator: "ends_with", value: "@company.com" },
+    { id: "rule-2", field: "scheduledAt", operator: "greater", value: "2024-01-01T09:00" },
+    { id: "rule-3", field: "price", operator: "between", value: [100, 500] },
+  ],
+};
+
+const customFields = [
+  { label: "Email Address", value: "email", type: "email" },
+  { label: "Scheduled At", value: "scheduledAt", type: "datetime" },
+  { label: "Price", value: "price", type: "currency" },
+];
+
+// Custom operators for custom field types
+const customOperatorsByFieldType: Record<string, Operator[]> = {
+  email: [
+    { name: "Is", value: "equal", type: "binary" },
+    { name: "Contains", value: "contains", type: "binary" },
+    { name: "Ends With", value: "ends_with", type: "binary" },
+    { name: "Is Empty", value: "is_empty", type: "unary" },
+  ],
+  datetime: [
+    { name: "Before", value: "less", type: "binary" },
+    { name: "After", value: "greater", type: "binary" },
+    { name: "Between", value: "between", type: "range" },
+    { name: "Is Empty", value: "is_empty", type: "unary" },
+  ],
+  currency: [
+    { name: "Equals", value: "equal", type: "binary" },
+    { name: "Greater Than", value: "greater", type: "binary" },
+    { name: "Less Than", value: "less", type: "binary" },
+    { name: "Between", value: "between", type: "range" },
+  ],
+};
 
 export const operatorsByFieldType = {
   string: [
@@ -236,6 +275,76 @@ export const DateOperators: Story = {
     docs: {
       description: {
         story: "Date fields support comparison and range operators similar to numbers.",
+      },
+    },
+  },
+};
+
+// Self-contained Custom Field Types Demo
+const CustomFieldTypesDemo = () => {
+  const [query, setQuery] = useState<Query>(customQuery);
+
+  return (
+    <div className="qb-container text-sm">
+      <QueryBuilder
+        value={query}
+        onChange={(newValue) => setQuery(newValue)}
+      >
+        <QueryBuilder.BuilderWithDnD
+          fields={customFields}
+          operatorsByFieldType={customOperatorsByFieldType}
+          renderRule={(props) => <Rule {...props} />}
+          renderGroup={(props) => <Group {...props} rootId={query.id} />}
+        />
+      </QueryBuilder>
+    </div>
+  );
+};
+
+export const CustomFieldTypes: StoryObj<typeof CustomFieldTypesDemo> = {
+  render: () => <CustomFieldTypesDemo />,
+  parameters: {
+    docs: {
+      description: {
+        story: `
+You can define **custom field types** beyond the defaults (string, number, boolean, date).
+
+This example uses custom types: \`email\`, \`datetime\`, and \`currency\` with their own operators.
+
+\`\`\`tsx
+const customFields = [
+  { label: "Email Address", value: "email", type: "email" },
+  { label: "Scheduled At", value: "scheduledAt", type: "datetime" },
+  { label: "Price", value: "price", type: "currency" },
+];
+
+const customOperatorsByFieldType = {
+  email: [
+    { name: "Is", value: "equal", type: "binary" },
+    { name: "Contains", value: "contains", type: "binary" },
+    { name: "Ends With", value: "ends_with", type: "binary" },
+    { name: "Is Empty", value: "is_empty", type: "unary" },
+  ],
+  datetime: [
+    { name: "Before", value: "less", type: "binary" },
+    { name: "After", value: "greater", type: "binary" },
+    { name: "Between", value: "between", type: "range" },
+  ],
+  currency: [
+    { name: "Equals", value: "equal", type: "binary" },
+    { name: "Greater Than", value: "greater", type: "binary" },
+    { name: "Less Than", value: "less", type: "binary" },
+    { name: "Between", value: "between", type: "range" },
+  ],
+};
+
+<QueryBuilder.Builder
+  fields={customFields}
+  operatorsByFieldType={customOperatorsByFieldType}
+  ...
+/>
+\`\`\`
+        `,
       },
     },
   },

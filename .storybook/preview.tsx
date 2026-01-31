@@ -20,7 +20,10 @@ const preview: Preview = {
       },
     },
     a11y: {
-      test: 'todo',
+      disable: true,
+    },
+    viewport: {
+      disable: true,
     },
   },
   globalTypes: {

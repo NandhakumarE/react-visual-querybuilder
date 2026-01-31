@@ -1,5 +1,6 @@
 import { operators, type FieldType, type OperatorKey, type Value } from "../../../lib";
 import { styles, cn } from "./styles";
+import { defaultLabels, type Labels } from "./labels";
 
 interface ValueInputProps {
   ruleId: string;
@@ -8,6 +9,7 @@ interface ValueInputProps {
   value?: Value;
   onChange: (value: Value) => void;
   disabled?: boolean;
+  labels?: Partial<Labels>;
 }
 
 // Unary operators don't need a value input
@@ -31,7 +33,9 @@ const ValueInput = ({
   value,
   onChange,
   disabled = false,
+  labels: customLabels,
 }: ValueInputProps) => {
+  const labels = { ...defaultLabels, ...customLabels };
   // Unary operators - no input needed
   if (UNARY_OPERATORS.includes(operator)) {
     return null;
@@ -57,17 +61,17 @@ const ValueInput = ({
             id={ruleId + "value-from"}
             className={cn(styles.input, styles.focusOutline)}
             type="number"
-            placeholder="From"
+            placeholder={labels.from}
             value={from as string ?? ""}
             onChange={(e) => handleFromChange(Number(e.target.value))}
             disabled={disabled}
           />
-          <span className={styles.textMuted}>to</span>
+          <span className={styles.textMuted}>{labels.to}</span>
           <input
             id={ruleId + "value-to"}
             className={cn(styles.input, styles.focusOutline)}
             type="number"
-            placeholder="To"
+            placeholder={labels.to}
             value={to as string ?? ""}
             onChange={(e) => handleToChange(Number(e.target.value))}
             disabled={disabled}
@@ -83,15 +87,17 @@ const ValueInput = ({
             id={ruleId + "value-from"}
             className={cn(styles.input, styles.focusOutline)}
             type="date"
+            title={labels.dateFormat}
             value={(from as string) ?? ""}
             onChange={(e) => handleFromChange(e.target.value)}
             disabled={disabled}
           />
-          <span className={styles.textMuted}>to</span>
+          <span className={styles.textMuted}>{labels.to}</span>
           <input
             id={ruleId + "value-to"}
             className={cn(styles.input, styles.focusOutline)}
             type="date"
+            title={labels.dateFormat}
             value={(to as string) ?? ""}
             onChange={(e) => handleToChange(e.target.value)}
             disabled={disabled}
@@ -112,7 +118,7 @@ const ValueInput = ({
           onChange={(e) => handleFromChange(e.target.value)}
           disabled={disabled}
         />
-        <span className={styles.textMuted}>to</span>
+        <span className={styles.textMuted}>{labels.to}</span>
         <input
           id={ruleId + "value-to"}
           className={cn(styles.input, styles.focusOutline)}
@@ -152,6 +158,7 @@ const ValueInput = ({
         id={ruleId + "value"}
         className={cn(styles.input, styles.focusOutline)}
         type="date"
+        title={labels.dateFormat}
         value={(value as string) ?? ""}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}

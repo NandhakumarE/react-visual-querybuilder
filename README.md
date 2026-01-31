@@ -1,11 +1,11 @@
 # react-querybuilder-lite
 
 [![npm version](https://img.shields.io/npm/v/react-querybuilder-lite.svg)](https://www.npmjs.com/package/react-querybuilder-lite)
-[![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-querybuilder-lite)](https://bundlephobia.com/package/react-querybuilder-lite)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)
 ![React](https://img.shields.io/badge/React-18%20%7C%2019-61dafb)
 [![License](https://img.shields.io/npm/l/react-querybuilder-lite)](https://github.com/NandhakumarE/react-visual-querybuilder/blob/main/LICENSE)
 [![Storybook](https://img.shields.io/badge/Storybook-Live%20Demo-ff4785)](https://nandhakumare.github.io/react-querybuilder-lite/)
+
 
 A lightweight, headless React query builder with drag-and-drop support. Build complex filter UIs with any design system — zero styling opinions.
 
@@ -16,7 +16,7 @@ Most query builders ship with opinionated styles or are tightly coupled to speci
 - **Complete UI freedom** — Use MUI, Chakra, Ant Design, Tailwind, or vanilla HTML
 - **Inversion of control** — You own the markup, we handle the logic
 - **Type safety** — Full TypeScript inference for queries, operators, and fields
-- **Lightweight** — ~8KB without DnD, ~23KB with DnD (minified + gzipped)
+- **Lightweight** — ~18KB minified + gzipped, including drag-and-drop support
 
 ## Features
 
@@ -239,6 +239,15 @@ interface GroupRenderProps {
 }
 ```
 
+## Terminology
+
+| Term | Description |
+|------|-------------|
+| **Field** (or Column) | The data attribute you want to filter on. For example, "First Name", "Age", "Created Date" are fields. |
+| **Operator** | The comparison operation like "equals", "contains", "greater than". |
+| **Field Type** | Category of the field that determines available operators. Default types: `string`, `number`, `boolean`, `date`. You can define custom types. |
+| **Combinator** | Logical operator to combine rules: `AND` or `OR`. |
+
 ## Types
 
 ### Core Types
@@ -265,7 +274,7 @@ interface Rule {
 interface Field {
   label: string;
   value: string;
-  type: 'string' | 'number' | 'boolean' | 'date';
+  type: string;  // 'string' | 'number' | 'boolean' | 'date' or any custom type
 }
 ```
 
@@ -288,6 +297,66 @@ Operators are automatically filtered by field type:
 | `number` | `is_empty`, `is_not_empty`, `equal`, `not_equal`, `less`, `less_or_equal`, `greater`, `greater_or_equal`, `between`, `not_between`, `in`, `not_in` |
 | `boolean` | `is_empty`, `is_not_empty`, `is_true`, `is_false` |
 | `date` | `is_empty`, `is_not_empty`, `equal`, `not_equal`, `less`, `greater`, `between`, `not_between`, `in`, `not_in` |
+
+## Custom Field Types
+
+You're not limited to the default field types. Define your own types with custom operators:
+
+```typescript
+import { QueryBuilder, type Query, type Operator } from 'react-querybuilder-lite';
+
+// Define fields with custom types
+const fields = [
+  { label: 'Name', value: 'name', type: 'string' },
+  { label: 'Email', value: 'email', type: 'email' },           // Custom type
+  { label: 'Created', value: 'createdAt', type: 'datetime' },  // Custom type
+  { label: 'Price', value: 'price', type: 'currency' },        // Custom type
+];
+
+// Provide operators for your custom types
+const operatorsByFieldType: Record<string, Operator[]> = {
+  string: [
+    { name: 'Equals', value: 'equal', type: 'binary' },
+    { name: 'Contains', value: 'contains', type: 'binary' },
+  ],
+  email: [
+    { name: 'Is', value: 'equal', type: 'binary' },
+    { name: 'Contains', value: 'contains', type: 'binary' },
+    { name: 'Ends With', value: 'ends_with', type: 'binary' },
+  ],
+  datetime: [
+    { name: 'Before', value: 'less', type: 'binary' },
+    { name: 'After', value: 'greater', type: 'binary' },
+    { name: 'Between', value: 'between', type: 'range' },
+  ],
+  currency: [
+    { name: 'Equals', value: 'equal', type: 'binary' },
+    { name: 'Greater Than', value: 'greater', type: 'binary' },
+    { name: 'Less Than', value: 'less', type: 'binary' },
+    { name: 'Between', value: 'between', type: 'range' },
+  ],
+};
+
+<QueryBuilder value={query} onChange={setQuery}>
+  <QueryBuilder.Builder
+    fields={fields}
+    operatorsByFieldType={operatorsByFieldType}
+    renderRule={...}
+    renderGroup={...}
+  />
+</QueryBuilder>
+```
+
+## Localization (i18n)
+
+Full internationalization support. You control all user-facing text:
+
+- **`fields`** — Translated field labels
+- **`operatorsByFieldType`** — Translated operator names
+- **`renderRule` / `renderGroup`** — Your components, your language. Full control over buttons, placeholders, and combinators
+- **`dragDropAccessibility`** — Translated screen reader announcements
+
+See the **[Localization story in Storybook →](https://nandhakumare.github.io/react-querybuilder-lite/?path=/docs/core-localization-i18n--docs)** for examples in Spanish, Japanese, and French. Need another language? Easy to configure refer to the comprehensive documentation in the story.
 
 ## Live Demos
 
