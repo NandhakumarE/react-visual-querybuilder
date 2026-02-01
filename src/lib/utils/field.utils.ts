@@ -31,9 +31,9 @@ export const getOperatorForFieldType = (
 };
 
 export const getSelectedOperatorByKey = (
-  key: OperatorKey
+  key: string
 ): Operator | undefined => {
-  return operators[key];
+  return operators[key as OperatorKey];
 };
 
 

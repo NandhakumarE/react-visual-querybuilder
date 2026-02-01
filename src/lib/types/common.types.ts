@@ -106,7 +106,7 @@ export interface Field {
 export interface Rule {
   id: string;
   field: string;
-  operator: OperatorKey;
+  operator: OperatorKey | string;
   value?: Value;
   isLocked?: boolean;
 }

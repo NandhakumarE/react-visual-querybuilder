@@ -8,7 +8,7 @@ export const DRAG_STATE = {
 export const RULE_INITIAL_DATA: Rule = {
   id: "rule-id",
   field: "",
-  operator: "equal",
+  operator: "",
   value: "",
   isLocked: false,
 };

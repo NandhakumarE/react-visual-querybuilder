@@ -2,7 +2,7 @@
 "react-querybuilder-lite": minor
 ---
 
-Add comprehensive localization (i18n) support and flexible field types
+Add comprehensive localization (i18n) support, flexible field types, and React 16.8+ support
 
 ## Features
 
@@ -22,9 +22,17 @@ Add comprehensive localization (i18n) support and flexible field types
   - `announcements`: Localized text for `onDragStart`, `onDragOver`, `onDragEnd`, `onDragCancel`
   - `instructions`: Localized text for draggable focus instructions
 
+### New Exports
+- `getInitialRule()`: Creates a new Rule with generated ID
+- `getInitialRuleGroup()`: Creates a new RuleGroup with generated ID
+
 ### New Types
 - `DragDropAccessibility`: Interface for accessibility options
 - `Announcements`, `ScreenReaderInstructions`: Re-exported from @dnd-kit/core
+
+### React Version Support
+- Now supports React 16.8+ (previously 18+)
+- Added fallback for `crypto.randomUUID()` for older environments
 
 ### Storybook
 - New **Localization (i18n)** story with Spanish, Japanese, and French examples
@@ -34,6 +42,11 @@ Add comprehensive localization (i18n) support and flexible field types
 ### Documentation
 - Updated README with Localization section
 - Added terminology section explaining Field, Operator, Field Type, Combinator
+- Added CodeSandbox demo link
+
+### Fixes
+- `Rule.operator` now defaults to empty string instead of `"equal"` on initial creation
+- `Rule.operator` type now allows custom operator values (string)
 
 ## Breaking Changes
 None - all changes are backward compatible

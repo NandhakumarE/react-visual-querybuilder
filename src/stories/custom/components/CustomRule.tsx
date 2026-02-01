@@ -1,15 +1,15 @@
 import { MdClose, MdDragIndicator } from 'react-icons/md';
-import type { OperatorKey, RuleRenderProps, Value } from '../../../lib';
+import type { RuleRenderProps, Value } from '../../../lib';
 import { operators } from '../../../lib';
 
-const UNARY_OPERATORS: OperatorKey[] = [
+const UNARY_OPERATORS: string[] = [
   operators.is_empty.value,
   operators.is_not_empty.value,
   operators.is_true.value,
   operators.is_false.value,
 ];
 
-const RANGE_OPERATORS: OperatorKey[] = [
+const RANGE_OPERATORS: string[] = [
   operators.between.value,
   operators.not_between.value,
 ];
@@ -117,7 +117,7 @@ const CustomRule = (props: RuleRenderProps) => {
       <select
         className="custom-select"
         value={rule.operator || ''}
-        onChange={(e) => onChange({ operator: e.target.value as OperatorKey })}
+        onChange={(e) => onChange({ operator: e.target.value })}
         disabled={isLocked}
         style={{ minWidth: 100 }}
       >

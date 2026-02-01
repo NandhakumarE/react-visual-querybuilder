@@ -2,9 +2,10 @@
 
 [![npm version](https://img.shields.io/npm/v/react-querybuilder-lite.svg)](https://www.npmjs.com/package/react-querybuilder-lite)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)
-![React](https://img.shields.io/badge/React-18%20%7C%2019-61dafb)
+![React](https://img.shields.io/badge/React-16.8%2B-61dafb)
 [![License](https://img.shields.io/npm/l/react-querybuilder-lite)](https://github.com/NandhakumarE/react-visual-querybuilder/blob/main/LICENSE)
 [![Storybook](https://img.shields.io/badge/Storybook-Live%20Demo-ff4785)](https://nandhakumare.github.io/react-querybuilder-lite/)
+[![CodeSandbox](https://img.shields.io/badge/CodeSandbox-Try%20It-000?logo=codesandbox)](https://codesandbox.io/p/sandbox/hmkk77)
 
 
 A lightweight, headless React query builder with drag-and-drop support. Build complex filter UIs with any design system — zero styling opinions.
@@ -46,7 +47,7 @@ yarn add react-querybuilder-lite
 pnpm add react-querybuilder-lite
 ```
 
-**Peer Dependencies:** React 18 or 19
+**Peer Dependencies:** React 16.8+
 
 ## Quick Start
 

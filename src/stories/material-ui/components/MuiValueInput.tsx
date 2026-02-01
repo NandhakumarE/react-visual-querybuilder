@@ -1,23 +1,23 @@
 import { TextField, Box, Typography } from '@mui/material';
-import { operators, type FieldType, type OperatorKey, type Value } from '../../../lib';
+import { operators, type FieldType, type Value } from '../../../lib';
 
 interface MuiValueInputProps {
   ruleId: string;
   fieldType?: FieldType;
-  operator: OperatorKey;
+  operator: string;
   value?: Value;
   onChange: (value: Value) => void;
   disabled?: boolean;
 }
 
-const UNARY_OPERATORS: OperatorKey[] = [
+const UNARY_OPERATORS: string[] = [
   operators.is_empty.value,
   operators.is_not_empty.value,
   operators.is_true.value,
   operators.is_false.value,
 ];
 
-const RANGE_OPERATORS: OperatorKey[] = [
+const RANGE_OPERATORS: string[] = [
   operators.between.value,
   operators.not_between.value,
 ];

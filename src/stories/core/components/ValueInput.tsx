@@ -5,7 +5,7 @@ import { defaultLabels, type Labels } from "./labels";
 interface ValueInputProps {
   ruleId: string;
   fieldType?: FieldType;
-  operator: OperatorKey;
+  operator: OperatorKey | string;
   value?: Value;
   onChange: (value: Value) => void;
   disabled?: boolean;
@@ -13,7 +13,7 @@ interface ValueInputProps {
 }
 
 // Unary operators don't need a value input
-const UNARY_OPERATORS: OperatorKey[] = [
+const UNARY_OPERATORS: string[] = [
   operators.is_empty.value,
   operators.is_not_empty.value,
   operators.is_true.value,
@@ -21,7 +21,7 @@ const UNARY_OPERATORS: OperatorKey[] = [
 ];
 
 // Range operators need two inputs (from/to)
-const RANGE_OPERATORS: OperatorKey[] = [
+const RANGE_OPERATORS: string[] = [
   operators.between.value,
   operators.not_between.value,
 ];
