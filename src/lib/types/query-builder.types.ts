@@ -1,4 +1,4 @@
-import type { DraggableAttributes } from "@dnd-kit/core";
+import type { DraggableAttributes, Announcements, ScreenReaderInstructions } from "@dnd-kit/core";
 import type {
   Query,
   Field,
@@ -71,12 +71,43 @@ export interface DragPreviewProps {
   type: "rule" | "group";
 }
 
+/**
+ * Accessibility options for drag and drop.
+ * Use this to customize screen reader text for i18n or accessibility needs.
+ */
+export interface DragDropAccessibility {
+  /**
+   * Text announced by screen readers during drag operations.
+   * Customize for different languages or clearer descriptions.
+   * @example
+   * announcements: {
+   *   onDragStart: ({ active }) => `Picked up ${active.id}`,
+   *   onDragEnd: ({ active, over }) => `Dropped ${active.id}`,
+   * }
+   */
+  announcements?: Announcements;
+  /**
+   * Instructions read when a draggable item receives focus.
+   * Customize for different languages.
+   * @example
+   * instructions: {
+   *   draggable: "Press space to pick up. Use arrow keys to move."
+   * }
+   */
+  instructions?: ScreenReaderInstructions;
+}
+
 export interface BuilderProps {
   fields: Field[];
   operatorsByFieldType?: Record<FieldType, Operator[]>;
   renderRule: (props: RuleRenderProps) => React.ReactNode;
   renderGroup: (props: GroupRenderProps) => React.ReactNode;
   renderDragPreview?: (props: DragPreviewProps) => React.ReactNode;
+  /**
+   * Accessibility options for drag and drop (screen reader support).
+   * Use this for i18n or to customize how screen readers announce drag operations.
+   */
+  dragDropAccessibility?: DragDropAccessibility;
 }
 
 export interface UseQueryBuilderReturn {

@@ -1,4 +1,4 @@
-import type { FieldType, Operator, Rule, RuleGroup } from "../types/common.types";
+import type { DefaultFieldType, Operator, Rule, RuleGroup } from "../types/common.types";
 import { operators } from "../types/common.types";
 
 export const DRAG_STATE = {
@@ -8,7 +8,7 @@ export const DRAG_STATE = {
 export const RULE_INITIAL_DATA: Rule = {
   id: "rule-id",
   field: "",
-  operator: "equal",
+  operator: "",
   value: "",
   isLocked: false,
 };
@@ -20,7 +20,11 @@ export const RULE_GROUP_INITIAL_DATA: RuleGroup = {
   isLocked: false,
 };
 
-export const OPERATORS_BY_FIELD_TYPE: Record<FieldType, Operator[]> = {
+/**
+ * Default operators for the built-in field types.
+ * Users can extend this with custom field types and operators.
+ */
+export const OPERATORS_BY_FIELD_TYPE: Record<DefaultFieldType, Operator[]> = {
   string: [
     operators.is_empty,
     operators.is_not_empty,

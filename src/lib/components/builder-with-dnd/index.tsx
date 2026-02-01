@@ -20,6 +20,7 @@ import DefaultDragOverlay from "./DefaultDragOverlay";
 
 export const BuilderWithDnD = (props: BuilderProps) => {
   const { query, move } = useQueryBuilderContext();
+  const { dragDropAccessibility } = props;
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -42,12 +43,18 @@ export const BuilderWithDnD = (props: BuilderProps) => {
     setActiveId(null);
   };
 
+  const accessibility = dragDropAccessibility ? {
+    announcements: dragDropAccessibility.announcements,
+    screenReaderInstructions: dragDropAccessibility.instructions,
+  } : undefined;
+
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
+      accessibility={accessibility}
     >
       <BuilderContext.Provider
         value={{

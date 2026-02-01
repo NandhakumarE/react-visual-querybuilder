@@ -16,7 +16,7 @@ import {
   LockOutlined,
   LockOpenOutlined,
 } from '@mui/icons-material';
-import type { OperatorKey, RuleRenderProps, Value } from '../../../lib';
+import type { RuleRenderProps, Value } from '../../../lib';
 import MuiValueInput from './MuiValueInput';
 
 const MuiRule = (props: RuleRenderProps) => {
@@ -90,7 +90,7 @@ const MuiRule = (props: RuleRenderProps) => {
             id={`${rule.id}-operator`}
             value={rule.operator || ''}
             label="Operator"
-            onChange={(e) => onChange({ operator: e.target.value as OperatorKey })}
+            onChange={(e) => onChange({ operator: e.target.value })}
             disabled={isLocked}
             sx={{ fontSize: '0.8125rem' }}
           >

@@ -5,6 +5,7 @@ import { MdOutlineDragIndicator } from "react-icons/md";
 import { IoLockOpenOutline, IoLockClosedOutline } from "react-icons/io5";
 import { styles, cn } from "./styles";
 import ValueInput from "./ValueInput";
+import { defaultLabels, type Labels } from "./labels";
 
 export interface RuleFeatures {
   showDrag?: boolean;
@@ -13,9 +14,10 @@ export interface RuleFeatures {
   showLock?: boolean;
 }
 
-const Rule = (props: RuleRenderProps & { features?: RuleFeatures }) => {
-  const { rule, slots, onChange, fields, operators, selectedField, features } = props;
+const Rule = (props: RuleRenderProps & { features?: RuleFeatures; labels?: Partial<Labels> }) => {
+  const { rule, slots, onChange, fields, operators, selectedField, features, labels: customLabels } = props;
   const { showDrag = true, showRemove = true, showClone = true, showLock = true } = features || {};
+  const labels = { ...defaultLabels, ...customLabels };
 
   const isLocked = rule.isLocked;
 
@@ -49,7 +51,7 @@ const Rule = (props: RuleRenderProps & { features?: RuleFeatures }) => {
           disabled={isLocked}
         >
           <option value="" disabled>
-            Select field
+            {labels.selectField}
           </option>
           {fields.map((f) => (
             <option key={f.value} value={f.value}>
@@ -65,7 +67,7 @@ const Rule = (props: RuleRenderProps & { features?: RuleFeatures }) => {
           disabled={isLocked}
         >
           <option value="" disabled>
-            Select operator
+            {labels.selectOperator}
           </option>
           {operators.map((op) => (
             <option key={op.value} value={op.value}>
@@ -80,6 +82,7 @@ const Rule = (props: RuleRenderProps & { features?: RuleFeatures }) => {
           value={rule.value}
           onChange={(value: Value) => onChange({ value })}
           disabled={isLocked}
+          labels={labels}
         />
       </div>
       <div className="flex items-center gap-1 px-1">
@@ -92,7 +95,7 @@ const Rule = (props: RuleRenderProps & { features?: RuleFeatures }) => {
             onClick={slots.onRemove}
             disabled={isLocked}
           >
-            <FiTrash size="17" title="Delete" />
+            <FiTrash size="17" title={labels.remove} />
           </button>
         )}
         {showClone && (
@@ -104,7 +107,7 @@ const Rule = (props: RuleRenderProps & { features?: RuleFeatures }) => {
             onClick={slots.onClone}
             disabled={isLocked}
           >
-            <FaRegClone size="16" title="Clone" />
+            <FaRegClone size="16" title={labels.clone} />
           </button>
         )}
         {showLock && (
@@ -116,9 +119,9 @@ const Rule = (props: RuleRenderProps & { features?: RuleFeatures }) => {
             onClick={slots.onToggleLock}
           >
             {isLocked ? (
-              <IoLockClosedOutline size="18" title="Unlock"/>
+              <IoLockClosedOutline size="18" title={labels.unlock}/>
             ) : (
-              <IoLockOpenOutline size="18" title="Lock" />
+              <IoLockOpenOutline size="18" title={labels.lock} />
             )}
           </button>
         )}

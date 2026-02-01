@@ -117,7 +117,7 @@ const ChakraRule = (props: RuleRenderProps) => {
         <ChakraValueInput
           ruleId={rule.id}
           fieldType={selectedField?.type}
-          operator={rule.operator}
+          operator={rule.operator as OperatorKey}
           value={rule.value}
           onChange={(value: Value) => onChange({ value })}
           disabled={isLocked}

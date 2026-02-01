@@ -5,6 +5,7 @@ import { FaRegClone } from "react-icons/fa6";
 import { FiTrash } from "react-icons/fi";
 import { IoLockOpenOutline, IoLockClosedOutline } from "react-icons/io5";
 import { styles, cn } from "./styles";
+import { defaultLabels, type Labels } from "./labels";
 
 export interface GroupFeatures {
   showDrag?: boolean;
@@ -15,9 +16,10 @@ export interface GroupFeatures {
   showLock?: boolean;
 }
 
-const Group = (props: GroupRenderProps & { rootId: string; features?: GroupFeatures, maxDepth?: number }) => {
-  const { rootId, group, depth, children, slots, onChange, features, maxDepth } = props;
+const Group = (props: GroupRenderProps & { rootId: string; features?: GroupFeatures; maxDepth?: number; labels?: Partial<Labels> }) => {
+  const { rootId, group, depth, children, slots, onChange, features, maxDepth, labels: customLabels } = props;
   const { showDrag = true, showAddRule = true, showAddGroup = true, showRemove = true, showClone = true, showLock = true } = features || {};
+  const labels = { ...defaultLabels, ...customLabels };
 
   const isRoot = group.id === rootId;
   const isLocked = group.isLocked;
@@ -52,8 +54,8 @@ const Group = (props: GroupRenderProps & { rootId: string; features?: GroupFeatu
           }
           disabled={isLocked}
         >
-          <option value="and">AND</option>
-          <option value="or">OR</option>
+          <option value="and">{labels.and}</option>
+          <option value="or">{labels.or}</option>
         </select>
         {showAddRule && (
           <button
@@ -64,7 +66,7 @@ const Group = (props: GroupRenderProps & { rootId: string; features?: GroupFeatu
             onClick={slots.onAddRule}
             disabled={isLocked}
           >
-            <IoMdAdd /> Add Rule
+            <IoMdAdd /> {labels.addRule}
           </button>
         )}
         {showAddGroup && !isMaxDepth && (
@@ -76,7 +78,7 @@ const Group = (props: GroupRenderProps & { rootId: string; features?: GroupFeatu
             onClick={slots.onAddGroup}
             disabled={isLocked}
           >
-            <IoMdAdd /> Add Group
+            <IoMdAdd /> {labels.addGroup}
           </button>
         )}
         {showRemove && !isRoot && (
@@ -88,7 +90,7 @@ const Group = (props: GroupRenderProps & { rootId: string; features?: GroupFeatu
             onClick={slots.onRemove}
             disabled={isLocked}
           >
-            <FiTrash /> Remove
+            <FiTrash /> {labels.remove}
           </button>
         )}
         {showClone && !isRoot && (
@@ -100,7 +102,7 @@ const Group = (props: GroupRenderProps & { rootId: string; features?: GroupFeatu
             onClick={slots.onClone}
             disabled={isLocked}
           >
-            <FaRegClone /> Clone
+            <FaRegClone /> {labels.clone}
           </button>
         )}
         {showLock && !isRoot && (
@@ -112,7 +114,7 @@ const Group = (props: GroupRenderProps & { rootId: string; features?: GroupFeatu
             onClick={slots.onToggleLock}
           >
             {isLocked ? <IoLockClosedOutline size="18" /> : <IoLockOpenOutline size="18" />}
-            {isLocked ? "Unlock" : "Lock"}
+            {isLocked ? labels.unlock : labels.lock}
           </button>
         )}
       </div>

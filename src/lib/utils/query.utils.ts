@@ -14,7 +14,10 @@ export const isRuleGroup = (item: unknown): item is RuleGroup => {
   );
 };
 
-const generateId = () => crypto.randomUUID();
+const generateId = (): string =>
+  typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 
 export const getRuleInitialData = (): Rule => {
   return { ...RULE_INITIAL_DATA, id: generateId() };
